@@ -1,7 +1,8 @@
+# syntax=docker/dockerfile:1.4
 # parameters
 ARG EXERCISE_NAME="braitenberg"
-ARG DESCRIPTION="<DESCRIPTION_HERE>"
-ARG MAINTAINER="<YOUR_FULL_NAME> (<YOUR_EMAIL_ADDRESS>)"
+ARG DESCRIPTION="Braitenberge Exercise"
+ARG MAINTAINER="Andrea F. Daniele (afdaniele@ttic.edu)"
 
 # ==================================================>
 # ==> Do not change the code below this line
@@ -57,8 +58,14 @@ ENV PIP_INDEX_URL=${PIP_INDEX_URL}
 COPY ./dependencies-py3.* "${REPO_PATH}/"
 RUN python3 -m pip install -r ${REPO_PATH}/dependencies-py3.txt
 
-# copy the source code
+# copy the source code (recipe)
 COPY ./packages "${REPO_PATH}/packages"
+
+# copy the assets (meat)
+COPY --from=meat ./assets "/assets"
+
+# copy the source code (meat)
+COPY --from=meat ./packages/. "${REPO_PATH}/packages/"
 
 # build packages
 RUN . /opt/ros/${ROS_DISTRO}/setup.sh && \
