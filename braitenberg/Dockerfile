@@ -49,20 +49,23 @@ ENV DT_MODULE_TYPE="exercise" \
     DT_LAUNCHER="${LAUNCHER}"
 
 # install apt dependencies
-COPY ./dependencies-apt.txt "${REPO_PATH}/"
+COPY --from=recipe ./dependencies-apt.txt "${REPO_PATH}/"
 RUN dt-apt-install ${REPO_PATH}/dependencies-apt.txt
 
 # install python3 dependencies
 ARG PIP_INDEX_URL="https://pypi.org/simple"
 ENV PIP_INDEX_URL=${PIP_INDEX_URL}
-COPY ./dependencies-py3.* "${REPO_PATH}/"
+COPY --from=recipe ./dependencies-py3.* "${REPO_PATH}/"
 RUN python3 -m pip install -r ${REPO_PATH}/dependencies-py3.txt
 
+# copy the assets (recipe)
+COPY --from=recipe ./assets "${REPO_PATH}/assets"
+
 # copy the source code (recipe)
-COPY ./packages "${REPO_PATH}/packages"
+COPY --from=recipe ./packages "${REPO_PATH}/packages"
 
 # copy the assets (meat)
-COPY --from=meat ./assets "/assets"
+COPY --from=meat ./assets/. "${REPO_PATH}/assets/"
 
 # copy the source code (meat)
 COPY --from=meat ./packages/. "${REPO_PATH}/packages/"
@@ -73,7 +76,7 @@ RUN . /opt/ros/${ROS_DISTRO}/setup.sh && \
     --workspace ${CATKIN_WS_DIR}/
 
 # install launcher scripts
-COPY ./launchers/. "${LAUNCH_PATH}/"
+COPY --from=recipe ./launchers/. "${LAUNCH_PATH}/"
 RUN dt-install-launchers "${LAUNCH_PATH}"
 
 # define default command
