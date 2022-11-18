@@ -1,4 +1,6 @@
 # Exercise settings file
-agent:
-    # currently not implemented, the agent base image to use
-    base: "template_random"
+
+agent_base: "template_random" # currently not implemented, the agent base image to use
+ws_dir: "solution" # directory that contains the code
+ros: false
+challenge: mooc-BV1
