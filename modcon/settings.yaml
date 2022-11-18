@@ -1,0 +1,4 @@
+# Exercise settings file
+agent:
+    # currently not implemented, the agent base image to use
+    base: "<AGENT_BASE_NAME_HERE>"
