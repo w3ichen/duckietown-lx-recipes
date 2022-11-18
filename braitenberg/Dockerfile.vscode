@@ -55,6 +55,5 @@ LABEL org.duckietown.label.module.type="exercise-vscode" \
     org.duckietown.label.base.image="${BASE_IMAGE}" \
     org.duckietown.label.base.tag="${BASE_TAG}" \
     org.duckietown.label.maintainer="${MAINTAINER}"
-
 # <== Do not change the code above this line
 # <==================================================
