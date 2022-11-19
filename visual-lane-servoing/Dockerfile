@@ -1,15 +1,15 @@
 # syntax=docker/dockerfile:1.4
 # parameters
-ARG EXERCISE_NAME="<EXERCISE_NAME_HERE>"
-ARG DESCRIPTION="<DESCRIPTION_HERE>"
-ARG MAINTAINER="<YOUR_FULL_NAME> (<YOUR_EMAIL_ADDRESS>)"
+ARG EXERCISE_NAME="visual-lane-servoing"
+ARG DESCRIPTION="Visual Lane Servoing"
+ARG MAINTAINER="Andrea F. Daniele (afdaniele@duckietown.com)"
 
 # ==================================================>
 # ==> Do not change the code below this line
 ARG ARCH
 ARG DISTRO=daffy
 ARG DOCKER_REGISTRY=docker.io
-ARG BASE_IMAGE=dt-ros-commons
+ARG BASE_IMAGE=challenge-aido_lf-baseline-duckietown
 ARG BASE_TAG=${DISTRO}-${ARCH}
 ARG LAUNCHER=default
 
