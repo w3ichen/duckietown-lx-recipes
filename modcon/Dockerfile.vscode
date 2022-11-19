@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.4
 # parameters
 ARG EXERCISE_NAME="modcon"
-ARG DESCRIPTION="VSCode - ModCon Exercise"
+ARG DESCRIPTION="VSCode - modcon"
 ARG MAINTAINER="Andrea F. Daniele (afdaniele@ttic.edu)"
 
 # ==================================================>
