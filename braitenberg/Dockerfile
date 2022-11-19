@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.4
 # parameters
 ARG EXERCISE_NAME="braitenberg"
-ARG DESCRIPTION="Braitenberge Exercise"
+ARG DESCRIPTION="Braitenberg Exercise"
 ARG MAINTAINER="Andrea F. Daniele (afdaniele@ttic.edu)"
 
 # ==================================================>
