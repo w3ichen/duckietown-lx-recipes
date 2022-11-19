@@ -9,7 +9,7 @@ ARG MAINTAINER="Andrea F. Daniele (afdaniele@ttic.edu)"
 ARG ARCH
 ARG DISTRO=daffy
 ARG DOCKER_REGISTRY=docker.io
-ARG BASE_IMAGE=dt-ros-commons
+ARG BASE_IMAGE=challenge-aido_lf-baseline-duckietown
 ARG BASE_TAG=${DISTRO}-${ARCH}
 ARG LAUNCHER=default
 
