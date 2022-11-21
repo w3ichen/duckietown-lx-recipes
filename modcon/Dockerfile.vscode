@@ -56,5 +56,8 @@ LABEL org.duckietown.label.module.type="exercise-vscode" \
     org.duckietown.label.base.tag="${BASE_TAG}" \
     org.duckietown.label.maintainer="${MAINTAINER}"
 
+# tell Python to stop creating __pycache__
+ENV PYTHONDONTWRITEBYTECODE=1
+
 # <== Do not change the code above this line
 # <==================================================
