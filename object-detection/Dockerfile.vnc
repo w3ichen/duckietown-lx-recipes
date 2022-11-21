@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1.4
 # parameters
-ARG EXERCISE_NAME="<EXERCISE_NAME_HERE>"
-ARG DESCRIPTION="VNC - <DESCRIPTION_HERE>"
-ARG MAINTAINER="<YOUR_FULL_NAME> (<YOUR_EMAIL_ADDRESS>)"
+ARG EXERCISE_NAME="object-detection"
+ARG DESCRIPTION="VNC - Object Detection"
+ARG MAINTAINER="<Andrea F. Daniele (afdaniele@ttic.edu)"
 
 # ==================================================>
 # ==> Do not change the code below this line
@@ -60,3 +60,17 @@ LABEL org.duckietown.label.module.type="exercise-vnc" \
 CMD ["dt-launcher-vnc"]
 # <== Do not change the code above this line
 # <==================================================
+
+# Copy stuff for the user directory
+COPY --from-recipe assets/vnc/image/root/Desktop/. /root/Desktop/
+COPY --from-recipe assets/vnc/image/root/Documents/. /root/Documents/
+COPY --from-recipe assets/vnc/image/root/icons/. /root/.icons/
+
+# Copy custom binaries
+COPY --from-recipe assets/vnc/image/usr/bin/. /usr/bin/
+
+# Copy rviz configuration
+COPY --from-recipe assets/vnc/image/opt/ros/noetic/share/rviz/. /opt/ros/noetic/share/rviz/
+
+# Remove extra Desktop icons
+RUN rm /root/Desktop/intrinsic_calibration.desktop

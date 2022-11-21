@@ -1,1 +1,7 @@
-# LIST YOUR PYTHON3 PACKAGES HERE
+aido-protocols-daffy
+duckietown-world-daffy
+tqdm
+
+git+https://github.com/Velythyl/dataclasses-spoof
+git+https://github.com/duckietown/lib-dt-mooc-2021
+git+https://github.com/duckietown/gym-duckietown.git@daffy-seg-fix
