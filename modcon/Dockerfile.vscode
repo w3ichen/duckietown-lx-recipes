@@ -61,3 +61,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 
 # <== Do not change the code above this line
 # <==================================================
+
+# setup vscode
+COPY --from=recipe assets/vscode/setup.sh /tmp/vscode_setup.sh
+RUN /tmp/vscode_setup.sh
