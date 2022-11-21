@@ -1,14 +1,8 @@
-# challenge name(s); defaults to all compatible challenges
-challenge: ["<CHALLENGE_NAME_HERE>"]
+challenge: [mooc-state-estimation]
 
-# conventions + format
-protocol: "<PROTOCOL_NAME_HERE>"
-
-# any user label - displayed in "challenges list"
-user-label: "<EXERCISE_NAME_HERE>"
-
-# any JSON payload
+protocol: aido2_db18_agent-z2
+user-label: "state estimation exercise"
 user-payload: {}
-
-# validation challenge
-validation_challenge: "<VALIDATION_CHALLENGE_NAME_HERE>"
+description: |
+  This is the MOOC State Estimation exercise
+validation_challenge: aido-hello-sim-validation

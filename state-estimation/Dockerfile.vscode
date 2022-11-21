@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1.4
 # parameters
-ARG EXERCISE_NAME="<EXERCISE_NAME_HERE>"
-ARG DESCRIPTION="VSCode - <DESCRIPTION_HERE>"
-ARG MAINTAINER="<YOUR_FULL_NAME> (<YOUR_EMAIL_ADDRESS>)"
+ARG EXERCISE_NAME="state-estimation"
+ARG DESCRIPTION="VSCode - State Estimation"
+ARG MAINTAINER="Andrea F. Daniele (afdaniele@duckietown.com)"
 
 # ==================================================>
 # ==> Do not change the code below this line
@@ -58,3 +58,9 @@ LABEL org.duckietown.label.module.type="exercise-vscode" \
 
 # <== Do not change the code above this line
 # <==================================================
+
+# install python libraries
+RUN pip3 install -U \
+    duckietown-world-daffy \
+    tqdm \
+    ipywidgets

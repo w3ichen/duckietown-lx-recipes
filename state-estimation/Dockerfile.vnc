@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1.4
 # parameters
-ARG EXERCISE_NAME="<EXERCISE_NAME_HERE>"
-ARG DESCRIPTION="VNC - <DESCRIPTION_HERE>"
-ARG MAINTAINER="<YOUR_FULL_NAME> (<YOUR_EMAIL_ADDRESS>)"
+ARG EXERCISE_NAME="state-estimation"
+ARG DESCRIPTION="VNC - State Estimation"
+ARG MAINTAINER="Andrea F. Daniele (afdaniele@duckietown.com)"
 
 # ==================================================>
 # ==> Do not change the code below this line
@@ -60,3 +60,23 @@ LABEL org.duckietown.label.module.type="exercise-vnc" \
 CMD ["dt-launcher-vnc"]
 # <== Do not change the code above this line
 # <==================================================
+
+RUN pip3 uninstall dataclasses -y
+
+# copy stuff for the user directory
+COPY --from=recipe assets/vnc/root/Desktop/. /root/Desktop/
+COPY --from=recipe assets/vnc/root/Documents/. /root/Documents/
+COPY --from=recipe assets/vnc/root/icons/. /root/.icons/
+
+# copy custom binaries
+COPY --from=recipe assets/vnc/usr/bin/. /usr/bin/
+
+# copy RVIZ configuration
+COPY --from=recipe assets/vnc/opt/ros/noetic/share/rviz/. /opt/ros/noetic/share/rviz/
+
+# remove icons that are not needed from the desktop
+RUN rm /root/Desktop/intrinsic_calibration.desktop
+
+# copy test calibration files
+COPY --from=recipe assets/calibrations/camera_extrinsic/lab.yaml /data/config/camera_extrinsic/
+COPY --from=recipe assets/calibrations/camera_intrinsic/lab.yaml /data/config/camera_intrinsic/
