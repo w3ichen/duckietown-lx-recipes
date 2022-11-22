@@ -1,14 +1,14 @@
 # challenge name(s); defaults to all compatible challenges
-challenge: ["<CHALLENGE_NAME_HERE>"]
+challenge: ["mooc-objdet"]
 
 # conventions + format
-protocol: "<PROTOCOL_NAME_HERE>"
+protocol: "aido2_db18_agent-z2"
 
 # any user label - displayed in "challenges list"
-user-label: "<EXERCISE_NAME_HERE>"
+user-label: "objdet exercise"
 
 # any JSON payload
 user-payload: {}
 
 # validation challenge
-validation_challenge: "<VALIDATION_CHALLENGE_NAME_HERE>"
+validation_challenge: "aido-hello-sim-validation"
