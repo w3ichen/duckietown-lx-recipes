@@ -65,3 +65,9 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # setup vscode
 COPY --from=recipe assets/vscode/setup.sh /tmp/vscode_setup.sh
 RUN /tmp/vscode_setup.sh
+
+# install python libraries
+RUN pip3 install -U \
+    duckietown-world-daffy \
+    tqdm \
+    ipywidgets
