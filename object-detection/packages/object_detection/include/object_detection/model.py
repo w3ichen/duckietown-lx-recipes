@@ -1,6 +1,6 @@
 import ctypes
 import os
-from integration import MODEL_NAME, DT_TOKEN
+from solution.integration_activity import MODEL_NAME, DT_TOKEN
 
 def run(input, exception_on_failure=False):
     print(input)
