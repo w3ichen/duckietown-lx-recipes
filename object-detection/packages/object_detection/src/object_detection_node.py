@@ -9,7 +9,7 @@ from duckietown_msgs.msg import Twist2DStamped, EpisodeStart
 import cv2
 from object_detection.model import Wrapper
 from cv_bridge import CvBridge
-from integration import NUMBER_FRAMES_SKIPPED, filter_by_classes, filter_by_bboxes, filter_by_scores
+from solution.integration_activity import NUMBER_FRAMES_SKIPPED, filter_by_classes, filter_by_bboxes, filter_by_scores
 
 class ObjectDetectionNode(DTROS):
 
