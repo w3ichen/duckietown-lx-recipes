@@ -1,11 +1,22 @@
 # challenge name(s); defaults to all compatible challenges
-challenge: ["<CHALLENGE_NAME_HERE>"]
+challenge: ["mooc-planning-dd-empty-vali",
+            "mooc-planning-cc-empty-vali",
+            "mooc-planning-dd-static-vali",
+            "mooc-planning-cc-static-vali",
+            "mooc-planning-dd-dynamic-vali",
+            "mooc-planning-cc-dynamic-vali",
+            "mooc-planning-dd-empty-test",
+            "mooc-planning-cc-empty-test",
+            "mooc-planning-dd-static-test",
+            "mooc-planning-cc-static-test",
+            "mooc-planning-dd-dynamic-test",
+            "mooc-planning-cc-dynamic-test"]
 
 # conventions + format
-protocol: "<PROTOCOL_NAME_HERE>"
+protocol: "protocol_planning-1"
 
 # any user label - displayed in "challenges list"
-user-label: "<EXERCISE_NAME_HERE>"
+user-label: "planning-exercise"
 
 # any JSON payload
 user-payload: {}
