@@ -1,4 +1,4 @@
-challenge: mooc-visservoing
+challenge: lx22-visservoing
 
 title: "MOOC - Visual Lane Servoing"
 tags: [visible, ml-validation, aido, aido-embodied, LF, v4, simulation, protocol-normal, mooc]
@@ -14,7 +14,7 @@ protocol: aido2_db18_agent-z2
 
 
 date-open: 2021-01-30T00:00Z
-date-close: 2021-12-31T00:00Z
+date-close: 2024-12-31T00:00Z
 
 
 scoring: !include scoring.yaml

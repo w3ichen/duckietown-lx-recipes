@@ -3,6 +3,6 @@
 agent_base: "duckietown_ml"
 ws_dir: "solution" # directory that contains the code the user needs to see
 ros: true
-challenge: mooc-objdet
+challenge: lx22-objdet
 rsync_exclude:
   - "solution/duckietown_dataset"
