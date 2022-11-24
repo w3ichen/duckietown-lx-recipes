@@ -3,6 +3,9 @@ robots:
     color: red
     protocol: PROTOCOL_FULL
     description: Playable robot ego0
+    dynamics: duckietown_world.world_duckietown.pwm_dynamics.get_DB18_nominal
+    dynamics_params:
+      delay: 0.15
     controllable: true
     configuration:
       pose:

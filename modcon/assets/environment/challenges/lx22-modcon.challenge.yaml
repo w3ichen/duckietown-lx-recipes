@@ -1,9 +1,9 @@
-challenge: mooc-objdet
+challenge: lx22-modcon
 
-title: "MOOC - Object Detection"
+title: "MOOC - ModCon"
 tags: [visible, ml-validation, aido, aido-embodied, LF, v4, simulation, protocol-normal, mooc]
 description: |
-  This is the challenge is part of the the MOOC's object detection exercise.
+  This is the challenge to test the PID controller of the MOOC's modcon exercise.
 
   For more information about the "Self-Driving Cars with Duckietown" MOOC, visit [duckietown.org].
 
@@ -14,7 +14,7 @@ protocol: aido2_db18_agent-z2
 
 
 date-open: 2021-01-30T00:00Z
-date-close: 2021-12-31T00:00Z
+date-close: 2024-12-31T00:00Z
 
 
 scoring: !include scoring.yaml
@@ -34,7 +34,7 @@ steps:
       services:
 
         simulator:
-          image: ${DOCKER_REGISTRY}/duckietown/challenge-aido_lf-simulator-gym:daffy-amd64
+          image: ${DOCKER_REGISTRY}/duckietown/challenge-aido_lf-simulator-gym:daffy
 
           environment:
             AIDONODE_DATA_IN: /fifos/simulator-in

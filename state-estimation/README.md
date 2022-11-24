@@ -74,4 +74,4 @@ Then finally submit with
 
 Your submitted agent should be able to navigate an entire loop in Duckietown. 
 
-You can verify the scores of your submissions on the [mooc-state-estimation challenge leaderboard](https://challenges.duckietown.org/v4/humans/challenges/mooc-state-estimation/leaderboard) after your submission is evaluated.
+You can verify the scores of your submissions on the [lx22-state-estimation challenge leaderboard](https://challenges.duckietown.org/v4/humans/challenges/lx22-state-estimation/leaderboard) after your submission is evaluated.
