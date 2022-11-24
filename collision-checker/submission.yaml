@@ -1,5 +1,5 @@
 # challenge name(s); defaults to all compatible challenges
-challenge: ["mooc-collision-check-test"]
+challenge: ["lx22-collision-check-test"]
 
 # conventions + format
 protocol: "protocol_collision_checking-1"
@@ -9,4 +9,3 @@ user-label: "collision-check-exercise"
 
 # any JSON payload
 user-payload: {}
-

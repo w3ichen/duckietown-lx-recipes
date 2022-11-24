@@ -3,4 +3,4 @@
 agent_base: "duckietown_baseline"
 ws_dir: "solution" # directory that contains the code the user needs to see
 ros: true
-challenge: mooc-modcon
+challenge: lx22-modcon
