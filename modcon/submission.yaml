@@ -1,11 +1,11 @@
 # challenge name(s); defaults to all compatible challenges
-challenge: ["mooc-modcon"]
+challenge: ["lx22-modcon"]
 
 # conventions + format
 protocol: "aido2_db18_agent-z2"
 
 # any user label - displayed in "challenges list"
-user-label: "mooc-modcon"
+user-label: "lx22-modcon"
 
 # any JSON payload
 user-payload: {}
