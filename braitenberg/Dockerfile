@@ -79,6 +79,9 @@ RUN . /opt/ros/${ROS_DISTRO}/setup.sh && \
 COPY --from=recipe ./launchers/. "${LAUNCH_PATH}/"
 RUN dt-install-launchers "${LAUNCH_PATH}"
 
+
+RUN PYTHONPATH=${REPO_PATH}/packages node-launch --check --config "${REPO_PATH}/assets/node_launch.yaml"
+
 # define default command
 CMD ["bash", "-c", "dt-launcher-${DT_LAUNCHER}"]
 

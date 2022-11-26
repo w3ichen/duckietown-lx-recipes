@@ -9,7 +9,7 @@ ARG MAINTAINER="Andrea F. Daniele (afdaniele@ttic.edu)"
 ARG ARCH
 ARG DISTRO=daffy
 ARG DOCKER_REGISTRY=docker.io
-ARG BASE_IMAGE=dt-gui-tools
+ARG BASE_IMAGE=aido-base-python3
 ARG BASE_TAG=${DISTRO}-${ARCH}
 ARG LAUNCHER=default
 
@@ -78,6 +78,8 @@ RUN . /opt/ros/${ROS_DISTRO}/setup.sh && \
 # install launcher scripts
 COPY --from=recipe ./launchers/. "${LAUNCH_PATH}/"
 RUN dt-install-launchers "${LAUNCH_PATH}"
+
+RUN PYTHONPATH=${REPO_PATH}/packages node-launch --check --config "${REPO_PATH}/assets/node_launch.yaml"
 
 # define default command
 CMD ["bash", "-c", "dt-launcher-${DT_LAUNCHER}"]

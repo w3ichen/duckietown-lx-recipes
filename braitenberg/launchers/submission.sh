@@ -1,3 +1,4 @@
 #!/bin/bash
 
-python3 -m __solution__.main
+exec node-launch --config "${DT_REPO_PATH}/assets/node_launch.yaml"
+
