@@ -2,7 +2,7 @@
 # parameters
 ARG EXERCISE_NAME="collision-detection"
 ARG DESCRIPTION="Collision Detection Exercise"
-ARG MAINTAINER="Andrea F. Daniele (afdaniele@ttic.edu)"
+ARG MAINTAINER="Andrea F. Daniele (afdaniele@duckietown.com)"
 
 # ==================================================>
 # ==> Do not change the code below this line

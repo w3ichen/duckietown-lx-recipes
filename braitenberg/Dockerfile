@@ -2,7 +2,7 @@
 # parameters
 ARG EXERCISE_NAME="braitenberg"
 ARG DESCRIPTION="Braitenberg Exercise"
-ARG MAINTAINER="Andrea F. Daniele (afdaniele@ttic.edu)"
+ARG lx-planning="Andrea F. Daniele (afdaniele@duckietown.com)"
 
 # ==================================================>
 # ==> Do not change the code below this line
