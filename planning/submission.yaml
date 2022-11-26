@@ -1,16 +1,16 @@
 # challenge name(s); defaults to all compatible challenges
-challenge: ["mooc-planning-dd-empty-vali",
-            "mooc-planning-cc-empty-vali",
-            "mooc-planning-dd-static-vali",
-            "mooc-planning-cc-static-vali",
-            "mooc-planning-dd-dynamic-vali",
-            "mooc-planning-cc-dynamic-vali",
-            "mooc-planning-dd-empty-test",
-            "mooc-planning-cc-empty-test",
-            "mooc-planning-dd-static-test",
-            "mooc-planning-cc-static-test",
-            "mooc-planning-dd-dynamic-test",
-            "mooc-planning-cc-dynamic-test"]
+challenge: ["lx22-planning-dd-empty-vali",
+            "lx22-planning-cc-empty-vali",
+            "lx22-planning-dd-static-vali",
+            "lx22-planning-cc-static-vali",
+            "lx22-planning-dd-dynamic-vali",
+            "lx22-planning-cc-dynamic-vali",
+            "lx22-planning-dd-empty-test",
+            "lx22-planning-cc-empty-test",
+            "lx22-planning-dd-static-test",
+            "lx22-planning-cc-static-test",
+            "lx22-planning-dd-dynamic-test",
+            "lx22-planning-cc-dynamic-test"]
 
 # conventions + format
 protocol: "protocol_planning-1"
@@ -21,5 +21,3 @@ user-label: "planning-exercise"
 # any JSON payload
 user-payload: {}
 
-# validation challenge
-validation_challenge: "<VALIDATION_CHALLENGE_NAME_HERE>"

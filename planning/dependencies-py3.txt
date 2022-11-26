@@ -1,7 +1,6 @@
 dt-protocols-daffy
 duckietown-utils-daffy
 aido-protocols-daffy
-matplotlib==3.6.0
 networkx
 ipympl
 ipython
