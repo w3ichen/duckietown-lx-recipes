@@ -2,7 +2,7 @@
 # parameters
 ARG EXERCISE_NAME="object-detection"
 ARG DESCRIPTION="Object Detection Exercise"
-ARG MAINTAINER="Andrea F. Daniele (afdaniele@ttic.edu)"
+ARG MAINTAINER="Andrea F. Daniele (afdaniele@duckietown.com)"
 
 # ==================================================>
 # ==> Do not change the code below this line
