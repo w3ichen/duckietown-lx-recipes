@@ -6,3 +6,5 @@ networkx
 ipympl
 ipython
 duckietown-world-daffy
+matplotlib==3.5.1
+networkx==2.8.8
