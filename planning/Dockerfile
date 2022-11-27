@@ -9,7 +9,7 @@ ARG MAINTAINER="Andrea F. Daniele (afdaniele@ttic.edu)"
 ARG ARCH
 ARG DISTRO=daffy
 ARG DOCKER_REGISTRY=docker.io
-ARG BASE_IMAGE=dt-ros-commons
+ARG BASE_IMAGE=dt-commons
 ARG BASE_TAG=${DISTRO}-${ARCH}
 ARG LAUNCHER=default
 
@@ -69,6 +69,11 @@ COPY --from=meat ./assets/. "${REPO_PATH}/assets/"
 
 # copy the source code (meat)
 COPY --from=meat ./packages/. "${REPO_PATH}/packages/"
+
+# build packages
+RUN . /opt/ros/${ROS_DISTRO}/setup.sh && \
+  catkin build \
+    --workspace ${CATKIN_WS_DIR}/
 
 # install launcher scripts
 COPY --from=recipe ./launchers/. "${LAUNCH_PATH}/"

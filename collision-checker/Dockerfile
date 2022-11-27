@@ -9,7 +9,7 @@ ARG MAINTAINER="Andrea F. Daniele (afdaniele@duckietown.com)"
 ARG ARCH
 ARG DISTRO=daffy
 ARG DOCKER_REGISTRY=docker.io
-ARG BASE_IMAGE=aido-base-python3
+ARG BASE_IMAGE=dt-commons
 ARG BASE_TAG=${DISTRO}-${ARCH}
 ARG LAUNCHER=default
 

@@ -9,7 +9,7 @@ ARG lx-planning="Andrea F. Daniele (afdaniele@duckietown.com)"
 ARG ARCH
 ARG DISTRO=daffy
 ARG DOCKER_REGISTRY=docker.io
-ARG BASE_IMAGE=dt-ros-commons
+ARG BASE_IMAGE=dt-commons
 ARG BASE_TAG=${DISTRO}-${ARCH}
 ARG LAUNCHER=default
 
@@ -79,9 +79,6 @@ RUN . /opt/ros/${ROS_DISTRO}/setup.sh && \
 COPY --from=recipe ./launchers/. "${LAUNCH_PATH}/"
 RUN dt-install-launchers "${LAUNCH_PATH}"
 
-
-RUN PYTHONPATH=${REPO_PATH}/packages node-launch --check --config "${REPO_PATH}/assets/node_launch.yaml"
-
 # define default command
 CMD ["bash", "-c", "dt-launcher-${DT_LAUNCHER}"]
 
@@ -99,3 +96,10 @@ LABEL org.duckietown.label.module.type="exercise" \
     org.duckietown.label.maintainer="${MAINTAINER}"
 # <== Do not change the code above this line
 # <==================================================
+
+# make `packages/` directory discoverable
+ENV PYTHONPATH=${REPO_PATH}/packages
+
+# check agent
+RUN node-launch --check --config "${REPO_PATH}/assets/node_launch.yaml"
+
