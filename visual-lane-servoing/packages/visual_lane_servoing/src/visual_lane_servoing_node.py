@@ -13,7 +13,8 @@ from std_msgs.msg import String
 
 from solution.visual_servoing_activity import \
     get_steer_matrix_left_lane_markings, \
-    get_steer_matrix_right_lane_markings
+    get_steer_matrix_right_lane_markings, \
+    detect_lane_markings
 from duckietown.dtros import DTROS, NodeType, TopicType
 from duckietown.utils.image.ros import compressed_imgmsg_to_rgb, rgb_to_compressed_imgmsg
 
