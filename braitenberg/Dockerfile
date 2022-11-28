@@ -102,4 +102,3 @@ ENV PYTHONPATH=${REPO_PATH}/packages
 
 # check agent
 RUN node-launch --check --config "${REPO_PATH}/assets/node_launch.yaml"
-
