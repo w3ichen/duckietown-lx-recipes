@@ -11,10 +11,7 @@ from duckietown_msgs.msg import Twist2DStamped, EpisodeStart
 from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import String
 
-from solution.visual_servoing_activity import \
-    get_steer_matrix_left_lane_markings, \
-    get_steer_matrix_right_lane_markings, \
-    detect_lane_markings
+from solution import visual_servoing_activity
 from duckietown.dtros import DTROS, NodeType, TopicType
 from duckietown.utils.image.ros import compressed_imgmsg_to_rgb, rgb_to_compressed_imgmsg
 
@@ -37,7 +34,7 @@ class LaneServoingNode(DTROS):
         # Initialize the DTROS parent class
         super(LaneServoingNode, self).__init__(node_name=node_name,
                                                node_type=NodeType.LOCALIZATION)
-        self.log("Initializing...")
+        self.loginfo("Initializing...")
         # get the name of the robot
         self.veh = rospy.get_namespace().strip("/")
 
@@ -48,18 +45,22 @@ class LaneServoingNode(DTROS):
         self.steer_max = -1
 
         w, h = 640, 480
-        self._cutoff = ((int(0.5 * h), int(0.01 * h)), (int(0.1 * w), int(0.1 * w)))
+
+        # TODO: you can play with these values to modify the horizontal field-of-view of the agent
+        left = 0.1
+        right = 0.1
+        self._roi = (int(left * w), int(right * w))
 
         self.VLS_ACTION = None
         self.VLS_STOPPED = True
 
         # Used for AIDO evaluation
         self.AIDO_eval = rospy.get_param(f"/{self.veh}/AIDO_eval", False)
-        self.log(f"AIDO EVAL VAR: {self.AIDO_eval}")
+        self.loginfo(f"AIDO EVAL VAR: {self.AIDO_eval}")
 
         # Active only when submitting and evaluating (PID Exercise)
         if self.AIDO_eval:
-            self.log("Starting evaluation for Visual Lane Servoing.")
+            self.loginfo("Starting evaluation for Visual Lane Servoing.")
 
         # Defining subscribers:
         rospy.Subscriber(
@@ -100,11 +101,9 @@ class LaneServoingNode(DTROS):
         kinematics_calib = self.read_params_from_calibration_file()
         self.omega_max = kinematics_calib.get('omega_max', 6.0)
 
-        for _ in range(5):
-            self.log("Initializing...")
-            time.sleep(1)
-        self.log("Initialized!")
-        self.log("Waiting for the Exercise App \"Visual Lane Servoing\" to be opened in VNC...")
+        self.loginfo("Initialized!")
+        if not self.AIDO_eval:
+            self.loginfo("Waiting for the Exercise App \"Visual Lane Servoing\" to be opened in VNC...")
 
     def cb_episode_start(self, msg: EpisodeStart):
         loaded = yaml.load(msg.other_payload_yaml, Loader=yaml.FullLoader)
@@ -128,7 +127,7 @@ class LaneServoingNode(DTROS):
         """
 
         if msg.data not in ["init", "calibration", "go", "stop"]:
-            self.log(f"Activity '{msg.data}' not recognized. Exiting...")
+            self.loginfo(f"Activity '{msg.data}' not recognized. Exiting...")
             exit(1)
 
         self.VLS_ACTION = msg.data
@@ -137,17 +136,17 @@ class LaneServoingNode(DTROS):
 
         if not self.AIDO_eval:
             if self.VLS_ACTION == "init":
-                self.log("Put the robot in a lane. Press [Calibrate] when done.")
+                self.loginfo("Put the robot in a lane. Press [Calibrate] when done.")
                 return
 
             if self.VLS_ACTION == "calibration":
-                self.log("Using your hands if you are working with a real robot, or the joystick if "
+                self.loginfo("Using your hands if you are working with a real robot, or the joystick if "
                          "you are working with the simulator. Turn the robot (in place), to the left "
                          "then to the right by about 30deg on each side. Press [Go] when done.")
                 return
 
             if self.VLS_ACTION == "go":
-                self.log(f"Calibration value: {int(self.steer_max)}")
+                self.loginfo(f"Calibration value: {int(self.steer_max)}")
                 self.VLS_STOPPED = False
                 # NOTE: this is needed to trigger the agent and get another image back
                 self.publish_command([0, 0])
@@ -165,11 +164,10 @@ class LaneServoingNode(DTROS):
         Performs the following steps for each incoming image:
 
         #. Resizes the image to the ``~img_size`` resolution
-        #. Removes the top ``~top_cutoff`` rows in order to remove the part of the
-        image that doesn't include the road
+        #. Removes some amount of the image
 
         Args:
-            image_msg (:obj:`sensor_msgs.msg.CompressedImage`): The receive image message
+            image_msg (:obj:`sensor_msgs.msg.CompressedImage`): The received image message
 
         """
         image = compressed_imgmsg_to_rgb(image_msg)
@@ -179,9 +177,8 @@ class LaneServoingNode(DTROS):
         if img_size[0] != width_original or img_size[1] != height_original:
             image = cv2.resize(image, tuple(reversed(img_size)), interpolation=cv2.INTER_NEAREST)
 
-        # crop image
-        (top, bottom), (left, right) = self._cutoff
-        image = image[top:-bottom, left:-right, :]
+        (left, right) = self._roi
+        image = image[:, left:-right, :]
 
         if self.is_shutdown:
             self.publish_command([0, 0])
@@ -189,12 +186,12 @@ class LaneServoingNode(DTROS):
 
         shape = image.shape[0:2]
 
-        steer_matrix_left_lm = get_steer_matrix_left_lane_markings(shape)
-        steer_matrix_right_lm = get_steer_matrix_right_lane_markings(shape)
+        steer_matrix_left_lm = visual_servoing_activity.get_steer_matrix_left_lane_markings(shape)
+        steer_matrix_right_lm = visual_servoing_activity.get_steer_matrix_right_lane_markings(shape)
 
         # Call the user-defined function to get the masks for the left
         # and right lane markings
-        (lt_mask, rt_mask) = detect_lane_markings(image)
+        (lt_mask, rt_mask) = visual_servoing_activity.detect_lane_markings(image)
 
         # Publish these out for visualization
         lt_mask_viz = cv2.addWeighted(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY), 0.1,
@@ -231,10 +228,10 @@ class LaneServoingNode(DTROS):
         self.publish_command(u)
 
         # self.logging to screen for debugging purposes
-        self.log("    VISUAL SERVOING    ")
-        self.log(f"Steering: (Unnormalized) : {int(steer)} / {int(self.steer_max)},"
+        self.loginfo("    VISUAL SERVOING    ")
+        self.loginfo(f"Steering: (Unnormalized) : {int(steer)} / {int(self.steer_max)},"
                  f"  Steering (Normalized) : {np.round(steer_scaled, 1)}")
-        self.log(f"Command v : {np.round(u[0], 2)},  omega : {np.round(u[1], 2)}")
+        self.loginfo(f"Command v : {np.round(u[0], 2)},  omega : {np.round(u[1], 2)}")
 
     def publish_command(self, u):
         """Publishes a car command message.
