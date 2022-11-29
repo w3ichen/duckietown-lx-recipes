@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1.4
 # parameters
-ARG EXERCISE_NAME="<EXERCISE_NAME_HERE>"
-ARG DESCRIPTION="VNC - <DESCRIPTION_HERE>"
-ARG MAINTAINER="<YOUR_FULL_NAME> (<YOUR_EMAIL_ADDRESS>)"
+ARG EXERCISE_NAME="planning"
+ARG DESCRIPTION="VNC - Planning"
+ARG MAINTAINER="Andrea F. Daniele (afdaniele@ttic.edu)"
 
 # ==================================================>
 # ==> Do not change the code below this line
@@ -38,7 +38,7 @@ COPY --from=recipe ./dependencies-apt.txt "/tmp/"
 RUN dt-apt-install /tmp/dependencies-apt.txt
 
 # install python3 dependencies
-ARG PIP_INDEX_URL="https://pypi.org/simple"
+ARG PIP_INDEX_URL="https://pypi.org/simple/"
 ENV PIP_INDEX_URL=${PIP_INDEX_URL}
 COPY --from=recipe ./dependencies-py3.* "/tmp/"
 RUN python3 -m pip install -r /tmp/dependencies-py3.txt
@@ -60,3 +60,5 @@ LABEL org.duckietown.label.module.type="exercise-vnc" \
 CMD ["dt-launcher-vnc"]
 # <== Do not change the code above this line
 # <==================================================
+
+ENV PYTHONPATH="${PYTHONPATH}:/jupyter_ws/solution/utils"

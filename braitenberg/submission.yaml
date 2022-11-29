@@ -1,5 +1,5 @@
 # challenge name(s); defaults to all compatible challenges
-challenge: ["mooc-BV1"]
+challenge: ["lx22-BV1"]
 
 # conventions + format
 protocol: "aido2_db18_agent-z2"

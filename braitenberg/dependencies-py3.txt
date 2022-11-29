@@ -2,3 +2,5 @@
 
 aido-protocols-daffy
 duckietown-utils-daffy
+
+ipywidgets

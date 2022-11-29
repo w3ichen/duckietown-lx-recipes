@@ -8,8 +8,10 @@ def run(input, exception_on_failure=False):
     print(input)
     try:
         import subprocess
-        program_output = subprocess.check_output(f"{input}", shell=True, universal_newlines=True,
-                                                 stderr=subprocess.STDOUT)
+
+        program_output = subprocess.check_output(
+            f"{input}", shell=True, universal_newlines=True, stderr=subprocess.STDOUT
+        )
     except Exception as e:
         if exception_on_failure:
             print(e.output)
@@ -19,7 +21,7 @@ def run(input, exception_on_failure=False):
     return program_output.strip()
 
 
-class Wrapper():
+class Wrapper:
     def __init__(self, aido_eval=False):
         model_name = MODEL_NAME()
 
@@ -31,12 +33,14 @@ class Wrapper():
         dt_token = DT_TOKEN()
         cache_path = "/code/solution/nn_models"
         from dt_device_utils import DeviceHardwareBrand, get_device_hardware_brand
+
         if get_device_hardware_brand() == DeviceHardwareBrand.JETSON_NANO:
             cache_path = "/data/config/nn_models"
         if not os.path.exists(cache_path):
             os.makedirs(cache_path)
 
         from dt_mooc.cloud import Storage
+
         storage = Storage(dt_token)
         storage.cache_directory = cache_path  # todo this is dirty fix upstram in lib
 
@@ -50,13 +54,16 @@ class Wrapper():
             # https://github.com/duckietown/tensorrtx/tree/dt-yolov5/yolov5
             run("git clone https://github.com/duckietown/tensorrtx.git -b dt-obj-det")
             run(f"cp {weight_file_path}.wts ./tensorrtx/yolov5.wts")
-            run(f"cd tensorrtx && ls && chmod 777 ./do_convert.sh && ./do_convert.sh",
-                exception_on_failure=True)
+            run(
+                f"cd tensorrtx && ls && chmod 777 ./do_convert.sh && ./do_convert.sh",
+                exception_on_failure=True,
+            )
             run(f"mv tensorrtx/build/yolov5.engine {weight_file_path}.engine")
             run(f"mv tensorrtx/build/libmyplugins.so {weight_file_path}.so")
             run("rm -rf tensorrtx")
             print(
-                "\n\n\n\n...DONE CONVERTING! NEXT TIME YOU RUN USING THE SAME MODEL, WE WON'T NEED TO DO THIS!\n\n\n")
+                "\n\n\n\n...DONE CONVERTING! NEXT TIME YOU RUN USING THE SAME MODEL, WE WON'T NEED TO DO THIS!\n\n\n"
+            )
 
         if get_device_hardware_brand() == DeviceHardwareBrand.JETSON_NANO:
             self.model = TRTModel(weight_file_path)
@@ -81,8 +88,9 @@ class AMD64Model:
         super().__init__()
 
         import torch
-        torch.hub.set_dir('/code/solution/nn_models')
-        self.model = torch.hub.load('ultralytics/yolov5', 'custom', path=f'{weight_file_path}.pt')
+
+        torch.hub.set_dir("/code/solution/nn_models")
+        self.model = torch.hub.load("ultralytics/yolov5", "custom", path=f"{weight_file_path}.pt")
         try:
             if torch.cuda.is_available():
                 self.model = self.model.cuda()
@@ -111,6 +119,7 @@ class TRTModel(Model):
         super().__init__()
         ctypes.CDLL(weight_file_path + ".so")
         from object_detection.tensorrt_model import YoLov5TRT
+
         self.model = YoLov5TRT(weight_file_path + ".engine")
 
     def infer(self, image):

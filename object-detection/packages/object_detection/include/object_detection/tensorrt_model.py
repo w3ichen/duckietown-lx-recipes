@@ -47,9 +47,7 @@ def plot_one_box(x, img, color=None, label=None, line_thickness=None):
     return:
         no return
     """
-    tl = (
-            line_thickness or round(0.002 * (img.shape[0] + img.shape[1]) / 2) + 1
-    )  # line/font thickness
+    tl = line_thickness or round(0.002 * (img.shape[0] + img.shape[1]) / 2) + 1  # line/font thickness
     color = color or [random.randint(0, 255) for _ in range(3)]
     c1, c2 = (int(x[0]), int(x[1])), (int(x[2]), int(x[3]))
     cv2.rectangle(img, c1, c2, color, thickness=tl, lineType=cv2.LINE_AA)
@@ -94,7 +92,7 @@ class YoLov5TRT(object):
         bindings = []
 
         for binding in engine:
-            print('bingding:', binding, engine.get_binding_shape(binding))
+            print("bingding:", binding, engine.get_binding_shape(binding))
             size = trt.volume(engine.get_binding_shape(binding)) * engine.max_batch_size
             dtype = trt.nptype(engine.get_binding_dtype(binding))
             # Allocate host and device buffers
@@ -145,9 +143,7 @@ class YoLov5TRT(object):
                 plot_one_box(
                     box,
                     image_array[i],
-                    label="{}:{:.2f}".format(
-                        CATEGORIES[int(result_classid[j])], result_scores[j]
-                    ),
+                    label="{}:{:.2f}".format(CATEGORIES[int(result_classid[j])], result_scores[j]),
                 )
 
         return image_array
@@ -196,10 +192,12 @@ class YoLov5TRT(object):
         output = host_outputs[0]
         # Do postprocess
 
-        results = []  # TODO results contains the result boxes,s cores, and classs id: this is what your robot needs to know!
+        results = (
+            []
+        )  # TODO results contains the result boxes,s cores, and classs id: this is what your robot needs to know!
         for i in range(self.batch_size):
             result_boxes, result_scores, result_classid = self.post_process(
-                output[i * 6001: (i + 1) * 6001], batch_origin_h[i], batch_origin_w[i]
+                output[i * 6001 : (i + 1) * 6001], batch_origin_h[i], batch_origin_w[i]
             )
 
             results.append((result_boxes, result_scores, result_classid))
@@ -250,9 +248,7 @@ class YoLov5TRT(object):
         # Resize the image with long side while maintaining ratio
         image = cv2.resize(image, (tw, th))
         # Pad the short side with (128,128,128)
-        image = cv2.copyMakeBorder(
-            image, ty1, ty2, tx1, tx2, cv2.BORDER_CONSTANT, (128, 128, 128)
-        )
+        image = cv2.copyMakeBorder(image, ty1, ty2, tx1, tx2, cv2.BORDER_CONSTANT, (128, 128, 128))
         image = image.astype(np.float32)
         # Normalize to [0,1]
         image /= 255.0
@@ -333,10 +329,10 @@ class YoLov5TRT(object):
 
 
 def nms(dets, scores, thresh):
-    '''
+    """
     dets is a numpy array : num_dets, 4
     scores ia  nump array : num_dets,
-    '''
+    """
     x1 = dets[:, 0]
     y1 = dets[:, 1]
     x2 = dets[:, 2]

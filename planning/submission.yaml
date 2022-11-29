@@ -1,14 +1,23 @@
 # challenge name(s); defaults to all compatible challenges
-challenge: ["<CHALLENGE_NAME_HERE>"]
+challenge: ["lx22-planning-dd-empty-vali",
+            "lx22-planning-cc-empty-vali",
+            "lx22-planning-dd-static-vali",
+            "lx22-planning-cc-static-vali",
+            "lx22-planning-dd-dynamic-vali",
+            "lx22-planning-cc-dynamic-vali",
+            "lx22-planning-dd-empty-test",
+            "lx22-planning-cc-empty-test",
+            "lx22-planning-dd-static-test",
+            "lx22-planning-cc-static-test",
+            "lx22-planning-dd-dynamic-test",
+            "lx22-planning-cc-dynamic-test"]
 
 # conventions + format
-protocol: "<PROTOCOL_NAME_HERE>"
+protocol: "protocol_planning-1"
 
 # any user label - displayed in "challenges list"
-user-label: "<EXERCISE_NAME_HERE>"
+user-label: "planning-exercise"
 
 # any JSON payload
 user-payload: {}
 
-# validation challenge
-validation_challenge: "<VALIDATION_CHALLENGE_NAME_HERE>"
