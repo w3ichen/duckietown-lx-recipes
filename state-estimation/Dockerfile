@@ -96,3 +96,5 @@ LABEL org.duckietown.label.module.type="exercise" \
     org.duckietown.label.maintainer="${MAINTAINER}"
 # <== Do not change the code above this line
 # <==================================================
+
+COPY --from=recipe assets/calibrations/ /data/config/calibrations/

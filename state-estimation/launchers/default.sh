@@ -13,6 +13,6 @@ set -eux
 dt-exec-BG roslaunch --wait agent agent_node.launch
 dt-exec-BG roslaunch --wait car_interface all.launch veh:=$VEHICLE_NAME
 
-dt-exec-FG roslaunch --wait duckietown_demos lane_following.launch || true
+dt-exec-FG roslaunch --wait histogram_lane_filter lane_following.launch || true
 
 copy-ros-logs

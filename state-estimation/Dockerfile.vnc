@@ -78,5 +78,4 @@ COPY --from=recipe assets/vnc/opt/ros/noetic/share/rviz/. /opt/ros/noetic/share/
 RUN rm /root/Desktop/intrinsic_calibration.desktop
 
 # copy test calibration files
-COPY --from=recipe assets/calibrations/camera_extrinsic/lab.yaml /data/config/camera_extrinsic/
-COPY --from=recipe assets/calibrations/camera_intrinsic/lab.yaml /data/config/camera_intrinsic/
+COPY --from=recipe assets/calibrations/ /data/config/calibrations/
