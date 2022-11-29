@@ -107,8 +107,7 @@ class EncoderPoseNode(DTROS):
 
         # Wheel encoder subscriber:
         right_encoder_topic = f"/{self.veh}/right_wheel_encoder_node/tick"
-        rospy.Subscriber(right_encoder_topic, WheelEncoderStamped, self.cbRightEncoder,
-                         queue_size=1)
+        rospy.Subscriber(right_encoder_topic, WheelEncoderStamped, self.cbRightEncoder, queue_size=1)
 
         # # AIDO challenge payload subscriber
         episode_start_topic = f"/{self.veh}/episode_start"
@@ -116,8 +115,7 @@ class EncoderPoseNode(DTROS):
 
         # Odometry publisher
         self.db_estimated_pose = rospy.Publisher(
-            f"/{self.veh}/encoder_localization", Odometry, queue_size=1,
-            dt_topic_type=TopicType.LOCALIZATION
+            f"/{self.veh}/encoder_localization", Odometry, queue_size=1, dt_topic_type=TopicType.LOCALIZATION
         )
 
         # Command publisher
@@ -176,8 +174,10 @@ class EncoderPoseNode(DTROS):
                 # Feed updated initial command towards ROS agent solution in 2nd episode
                 self.publishCmd(self.v_0, 0.0)
         else:
-            self.logwarn("No initial pose received. If you are running this on a real robot "
-                         "you can ignore this message.")
+            self.logwarn(
+                "No initial pose received. If you are running this on a real robot "
+                "you can ignore this message."
+            )
             self.y_prev = 0.0
             self.theta_prev = 0.0
 
@@ -305,14 +305,12 @@ class EncoderPoseNode(DTROS):
         # self.loging to screen for debugging purposes
         self.log("              ODOMETRY             ")
         # self.log(f"Baseline : {self.baseline}   R: {self.R}")
-        self.log(
-            f"Theta : {np.rad2deg(self.theta_curr)} deg,  x: {self.x_curr} m,  y: {self.y_curr} m")
+        self.log(f"Theta : {np.rad2deg(self.theta_curr)} deg,  x: {self.x_curr} m,  y: {self.y_curr} m")
         self.log(
             f"Rotation left wheel : {np.rad2deg(self.delta_phi_left)} deg,   "
             f"Rotation right wheel : {np.rad2deg(self.delta_phi_right)} deg"
         )
-        self.log(
-            f"Prev Ticks left : {self.left_tick_prev}   Prev Ticks right : {self.right_tick_prev}")
+        self.log(f"Prev Ticks left : {self.left_tick_prev}   Prev Ticks right : {self.right_tick_prev}")
         # self.log(
         #     f"Prev integral error : {self.prev_int}")
 
@@ -361,8 +359,7 @@ class EncoderPoseNode(DTROS):
 
             if self.PID_ACTIVITY:
                 v, omega, self.prev_e, self.prev_int = pid_controller.PIDController(
-                    self.v_0, self.theta_ref, self.theta_curr, self.prev_e, self.prev_int,
-                    delta_time
+                    self.v_0, self.theta_ref, self.theta_curr, self.prev_e, self.prev_int, delta_time
                 )
 
             elif self.PID_EXERCISE:

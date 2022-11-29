@@ -32,8 +32,7 @@ class LaneServoingNode(DTROS):
 
     def __init__(self, node_name):
         # Initialize the DTROS parent class
-        super(LaneServoingNode, self).__init__(node_name=node_name,
-                                               node_type=NodeType.LOCALIZATION)
+        super(LaneServoingNode, self).__init__(node_name=node_name, node_type=NodeType.LOCALIZATION)
         self.loginfo("Initializing...")
         # get the name of the robot
         self.veh = rospy.get_namespace().strip("/")
@@ -68,7 +67,7 @@ class LaneServoingNode(DTROS):
             CompressedImage,
             self.cb_image,
             buff_size=10000000,
-            queue_size=1
+            queue_size=1,
         )
 
         # AIDO challenge payload subscriber
@@ -85,25 +84,21 @@ class LaneServoingNode(DTROS):
         )
 
         self._lt_mask_pub = rospy.Publisher(
-            f"/{self.veh}/visual_control/left_mask/image/compressed",
-            CompressedImage,
-            queue_size=1
+            f"/{self.veh}/visual_control/left_mask/image/compressed", CompressedImage, queue_size=1
         )
 
         self._rt_mask_pub = rospy.Publisher(
-            f"/{self.veh}/visual_control/right_mask/image/compressed",
-            CompressedImage,
-            queue_size=1
+            f"/{self.veh}/visual_control/right_mask/image/compressed", CompressedImage, queue_size=1
         )
 
         # Get the steering gain (omega_max) from the calibration file
         # It defines the maximum omega used to scale normalized steering command
         kinematics_calib = self.read_params_from_calibration_file()
-        self.omega_max = kinematics_calib.get('omega_max', 6.0)
+        self.omega_max = kinematics_calib.get("omega_max", 6.0)
 
         self.loginfo("Initialized!")
         if not self.AIDO_eval:
-            self.loginfo("Waiting for the Exercise App \"Visual Lane Servoing\" to be opened in VNC...")
+            self.loginfo('Waiting for the Exercise App "Visual Lane Servoing" to be opened in VNC...')
 
     def cb_episode_start(self, msg: EpisodeStart):
         loaded = yaml.load(msg.other_payload_yaml, Loader=yaml.FullLoader)
@@ -118,8 +113,10 @@ class LaneServoingNode(DTROS):
             else:
                 self.loginfo("Given calibration ignored as the test is running locally.")
         else:
-            self.logwarn("No calibration value received. If you are running this on a real robot "
-                         "or on local simulation you can ignore this message.")
+            self.logwarn(
+                "No calibration value received. If you are running this on a real robot "
+                "or on local simulation you can ignore this message."
+            )
 
     def cb_action(self, msg):
         """
@@ -140,9 +137,11 @@ class LaneServoingNode(DTROS):
                 return
 
             if self.VLS_ACTION == "calibration":
-                self.loginfo("Using your hands if you are working with a real robot, or the joystick if "
-                         "you are working with the simulator. Turn the robot (in place), to the left "
-                         "then to the right by about 30deg on each side. Press [Go] when done.")
+                self.loginfo(
+                    "Using your hands if you are working with a real robot, or the joystick if "
+                    "you are working with the simulator. Turn the robot (in place), to the left "
+                    "then to the right by about 30deg on each side. Press [Go] when done."
+                )
                 return
 
             if self.VLS_ACTION == "go":
@@ -194,10 +193,12 @@ class LaneServoingNode(DTROS):
         (lt_mask, rt_mask) = visual_servoing_activity.detect_lane_markings(image)
 
         # Publish these out for visualization
-        lt_mask_viz = cv2.addWeighted(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY), 0.1,
-                                      lt_mask.astype(np.uint8), 0.8, 0)
-        rt_mask_viz = cv2.addWeighted(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY), 0.1,
-                                      rt_mask.astype(np.uint8), 0.8, 0)
+        lt_mask_viz = cv2.addWeighted(
+            cv2.cvtColor(image, cv2.COLOR_BGR2GRAY), 0.1, lt_mask.astype(np.uint8), 0.8, 0
+        )
+        rt_mask_viz = cv2.addWeighted(
+            cv2.cvtColor(image, cv2.COLOR_BGR2GRAY), 0.1, rt_mask.astype(np.uint8), 0.8, 0
+        )
 
         lt_mask_viz = rgb_to_compressed_imgmsg(cv2.cvtColor(lt_mask_viz, cv2.COLOR_GRAY2RGB), "jpeg")
         rt_mask_viz = rgb_to_compressed_imgmsg(cv2.cvtColor(rt_mask_viz, cv2.COLOR_GRAY2RGB), "jpeg")
@@ -206,9 +207,14 @@ class LaneServoingNode(DTROS):
         self._rt_mask_pub.publish(rt_mask_viz)
 
         if self.VLS_ACTION == "calibration":
-            self.steer_max = max(self.steer_max,
-                                 2 * max(float(np.sum(lt_mask * steer_matrix_left_lm)),
-                                         float(np.sum(rt_mask * steer_matrix_right_lm))))
+            self.steer_max = max(
+                self.steer_max,
+                2
+                * max(
+                    float(np.sum(lt_mask * steer_matrix_left_lm)),
+                    float(np.sum(rt_mask * steer_matrix_right_lm)),
+                ),
+            )
 
         if self.VLS_ACTION != "go" or self.VLS_STOPPED:
             return
@@ -217,20 +223,20 @@ class LaneServoingNode(DTROS):
             self.logerr("Not Calibrated!")
             return
 
-        steer = float(np.sum(lt_mask * steer_matrix_left_lm)) + \
-                float(np.sum(rt_mask * steer_matrix_right_lm))
+        steer = float(np.sum(lt_mask * steer_matrix_left_lm)) + float(np.sum(rt_mask * steer_matrix_right_lm))
 
         # now rescale from 0 to 1
-        steer_scaled = np.sign(steer) * \
-                       rescale(min(np.abs(steer), self.steer_max), 0, self.steer_max)
+        steer_scaled = np.sign(steer) * rescale(min(np.abs(steer), self.steer_max), 0, self.steer_max)
 
         u = [self.v_0, steer_scaled * self.omega_max]
         self.publish_command(u)
 
         # self.logging to screen for debugging purposes
         self.loginfo("    VISUAL SERVOING    ")
-        self.loginfo(f"Steering: (Unnormalized) : {int(steer)} / {int(self.steer_max)},"
-                 f"  Steering (Normalized) : {np.round(steer_scaled, 1)}")
+        self.loginfo(
+            f"Steering: (Unnormalized) : {int(steer)} / {int(self.steer_max)},"
+            f"  Steering (Normalized) : {np.round(steer_scaled, 1)}"
+        )
         self.loginfo(f"Command v : {np.round(u[0], 2)},  omega : {np.round(u[1], 2)}")
 
     def publish_command(self, u):
