@@ -97,4 +97,4 @@ LABEL org.duckietown.label.module.type="exercise" \
 # <== Do not change the code above this line
 # <==================================================
 
-COPY --from=recipe assets/calibrations/ /data/config/calibrations/
+COPY --from=recipe assets/agent/data/config/calibrations/ /data/config/calibrations/
