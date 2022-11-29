@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
+import cv2
 import numpy as np
 import rospy
-import rospkg
-
-from duckietown.dtros import DTROS, NodeType, TopicType, DTParam, ParamType
-from sensor_msgs.msg import CompressedImage, Image
-from duckietown_msgs.msg import Twist2DStamped, EpisodeStart
-import cv2
-from object_detection.model import Wrapper
 from cv_bridge import CvBridge
-from integration import NUMBER_FRAMES_SKIPPED, filter_by_classes, filter_by_bboxes, filter_by_scores
+from duckietown.dtros import DTROS, NodeType, TopicType
+from duckietown_msgs.msg import Twist2DStamped, EpisodeStart
+from object_detection.model import Wrapper
+from sensor_msgs.msg import CompressedImage, Image
+from solution.integration_activity import NUMBER_FRAMES_SKIPPED, filter_by_classes, \
+    filter_by_bboxes, filter_by_scores
+
 
 class ObjectDetectionNode(DTROS):
 
@@ -41,8 +41,7 @@ class ObjectDetectionNode(DTROS):
                          self.cb_episode_start,
                          queue_size=1)
 
-
-        self. pub_detections_image = rospy.Publisher(
+        self.pub_detections_image = rospy.Publisher(
             "~object_detections_img", Image, queue_size=1, dt_topic_type=TopicType.DEBUG
         )
 
@@ -55,11 +54,10 @@ class ObjectDetectionNode(DTROS):
             queue_size=1
         )
 
-        
         self.bridge = CvBridge()
 
-        model_file = rospy.get_param('~model_file','.')
-        self.v = rospy.get_param('~speed',0.4)
+        model_file = rospy.get_param('~model_file', '.')
+        self.v = rospy.get_param('~speed', 0.4)
         self.veh = rospy.get_namespace().strip("/")
         aido_eval = rospy.get_param("~AIDO_eval", False)
         self.log(f"AIDO EVAL VAR: {aido_eval}")
@@ -74,20 +72,18 @@ class ObjectDetectionNode(DTROS):
 
     def cb_episode_start(self, msg: EpisodeStart):
         self.avoid_duckies = False
-        self.pub_car_commands(True , msg.header)
+        self.pub_car_commands(True, msg.header)
 
     def image_cb(self, image_msg):
         if not self.initialized:
             self.pub_car_commands(True, image_msg.header)
             return
 
-
         self.frame_id += 1
         self.frame_id = self.frame_id % (1 + NUMBER_FRAMES_SKIPPED())
         if self.frame_id != 0:
             self.pub_car_commands(self.avoid_duckies, image_msg.header)
             return
-
 
         # Decode from compressed image with OpenCV
         try:
@@ -102,10 +98,10 @@ class ObjectDetectionNode(DTROS):
             if self._debug:
                 print("Assumed an image was bgr and flipped it to rgb")
             old_img = image
-            image = image[...,::-1].copy()  # image is bgr, flip it to rgb
+            image = image[..., ::-1].copy()  # image is bgr, flip it to rgb
 
-        old_img = cv2.resize(old_img, (416,416))
-        image = cv2.resize(image, (416,416))
+        old_img = cv2.resize(old_img, (416, 416))
+        image = cv2.resize(image, (416, 416))
         bboxes, classes, scores = self.model_wrapper.predict(image)
 
         detection = self.det2bool(bboxes, classes, scores)
@@ -129,21 +125,17 @@ class ObjectDetectionNode(DTROS):
                 color = colors[clas.item()]
                 name = names[clas.item()]
                 image = cv2.rectangle(image, pt1, pt2, color, 2)
-                text_location = (pt1[0], min(416, pt1[1]+20))
+                text_location = (pt1[0], min(416, pt1[1] + 20))
                 image = cv2.putText(image, name, text_location, font, 1, color, thickness=3)
-
-
 
             obj_det_img = self.bridge.cv2_to_imgmsg(old_img, encoding="bgr8")
             self.pub_detections_image.publish(obj_det_img)
-
 
     def det2bool(self, bboxes, classes, scores):
 
         box_ids = np.array(list(map(filter_by_bboxes, bboxes))).nonzero()[0]
         cla_ids = np.array(list(map(filter_by_classes, classes))).nonzero()[0]
         sco_ids = np.array(list(map(filter_by_scores, scores))).nonzero()[0]
-
 
         box_cla_ids = set(list(box_ids)).intersection(set(list(cla_ids)))
         box_cla_sco_ids = set(list(sco_ids)).intersection(set(list(box_cla_ids)))
@@ -165,6 +157,7 @@ class ObjectDetectionNode(DTROS):
         car_control_msg.omega = 0.0
 
         self.pub_car_cmd.publish(car_control_msg)
+
 
 if __name__ == "__main__":
     # Initialize the node

@@ -1,6 +1,8 @@
 import ctypes
 import os
-from integration import MODEL_NAME, DT_TOKEN
+
+from solution.integration_activity import MODEL_NAME, DT_TOKEN
+
 
 def run(input, exception_on_failure=False):
     print(input)
@@ -15,6 +17,7 @@ def run(input, exception_on_failure=False):
         program_output = e.output
     print(program_output)
     return program_output.strip()
+
 
 class Wrapper():
     def __init__(self, aido_eval=False):
@@ -35,43 +38,45 @@ class Wrapper():
 
         from dt_mooc.cloud import Storage
         storage = Storage(dt_token)
-        storage.cache_directory = cache_path    # todo this is dirty fix upstram in lib
+        storage.cache_directory = cache_path  # todo this is dirty fix upstram in lib
 
         file_already_existed = storage.is_hash_found_locally(model_name, cache_path)
 
         storage.download_files(model_name, cache_path)
         weight_file_path = f"{storage.cache_directory}/{model_name}"
 
-
-
         if get_device_hardware_brand() == DeviceHardwareBrand.JETSON_NANO and not file_already_existed:
             print("\n\n\n\nCONVERTING TO ONNX. THIS WILL TAKE A LONG TIME...\n\n\n")
             # https://github.com/duckietown/tensorrtx/tree/dt-yolov5/yolov5
             run("git clone https://github.com/duckietown/tensorrtx.git -b dt-obj-det")
             run(f"cp {weight_file_path}.wts ./tensorrtx/yolov5.wts")
-            run(f"cd tensorrtx && ls && chmod 777 ./do_convert.sh && ./do_convert.sh", exception_on_failure=True)
+            run(f"cd tensorrtx && ls && chmod 777 ./do_convert.sh && ./do_convert.sh",
+                exception_on_failure=True)
             run(f"mv tensorrtx/build/yolov5.engine {weight_file_path}.engine")
             run(f"mv tensorrtx/build/libmyplugins.so {weight_file_path}.so")
             run("rm -rf tensorrtx")
-            print("\n\n\n\n...DONE CONVERTING! NEXT TIME YOU RUN USING THE SAME MODEL, WE WON'T NEED TO DO THIS!\n\n\n")
+            print(
+                "\n\n\n\n...DONE CONVERTING! NEXT TIME YOU RUN USING THE SAME MODEL, WE WON'T NEED TO DO THIS!\n\n\n")
 
         if get_device_hardware_brand() == DeviceHardwareBrand.JETSON_NANO:
             self.model = TRTModel(weight_file_path)
-        
+
         else:
             self.model = AMD64Model(weight_file_path)
-
 
     def predict(self, image):
         return self.model.infer(image)
 
-class Model():
+
+class Model:
     def __init__(self):
         pass
+
     def infer(self, image):
         raise NotImplementedError()
 
-class AMD64Model():
+
+class AMD64Model:
     def __init__(self, weight_file_path):
         super().__init__()
 
@@ -93,19 +98,21 @@ class AMD64Model():
         xyxy = det.xyxy[0]  # grabs det of first image (aka the only image we sent to the net)
 
         if xyxy.shape[0] > 0:
-            conf = xyxy[:,-2]
-            clas = xyxy[:,-1]
-            xyxy = xyxy[:,:-2]
+            conf = xyxy[:, -2]
+            clas = xyxy[:, -1]
+            xyxy = xyxy[:, :-2]
 
             return xyxy, clas, conf
         return [], [], []
 
+
 class TRTModel(Model):
     def __init__(self, weight_file_path):
         super().__init__()
-        ctypes.CDLL(weight_file_path+".so")
+        ctypes.CDLL(weight_file_path + ".so")
         from object_detection.tensorrt_model import YoLov5TRT
-        self.model = YoLov5TRT(weight_file_path+".engine")
+        self.model = YoLov5TRT(weight_file_path + ".engine")
+
     def infer(self, image):
         # todo ensure this is in boxes, classes, scores format
         results = self.model.infer_for_robot([image])
@@ -116,5 +123,3 @@ class TRTModel(Model):
         if classes.shape[0] > 0:
             return boxes, classes, confs
         return [], [], []
-
-
