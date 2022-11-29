@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+
+import cv2
 import numpy as np
 import rospy
 import rospkg
@@ -6,15 +8,15 @@ import rospkg
 from duckietown.dtros import DTROS, NodeType, TopicType, DTParam, ParamType
 from sensor_msgs.msg import CompressedImage, Image
 from duckietown_msgs.msg import Twist2DStamped, EpisodeStart
-import cv2
 from object_detection.model import Wrapper
 from cv_bridge import CvBridge
-from solution.integration_activity import (
-    NUMBER_FRAMES_SKIPPED,
-    filter_by_classes,
-    filter_by_bboxes,
-    filter_by_scores,
-)
+from sensor_msgs.msg import CompressedImage, Image
+
+from solution.integration_activity import \
+    NUMBER_FRAMES_SKIPPED, \
+    filter_by_classes, \
+    filter_by_bboxes, \
+    filter_by_scores
 
 
 class ObjectDetectionNode(DTROS):

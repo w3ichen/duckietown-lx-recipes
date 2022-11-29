@@ -1,5 +1,6 @@
 import ctypes
 import os
+
 from solution.integration_activity import MODEL_NAME, DT_TOKEN
 
 

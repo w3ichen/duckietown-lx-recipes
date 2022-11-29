@@ -2,7 +2,7 @@
 # parameters
 ARG EXERCISE_NAME="object-detection"
 ARG DESCRIPTION="VNC - Object Detection"
-ARG MAINTAINER="<Andrea F. Daniele (afdaniele@duckietown.com)"
+ARG MAINTAINER="Andrea F. Daniele (afdaniele@ttic.edu)"
 
 # ==================================================>
 # ==> Do not change the code below this line
@@ -38,7 +38,7 @@ COPY --from=recipe ./dependencies-apt.txt "/tmp/"
 RUN dt-apt-install /tmp/dependencies-apt.txt
 
 # install python3 dependencies
-ARG PIP_INDEX_URL="https://pypi.org/simple/"
+ARG PIP_INDEX_URL="https://pypi.org/simple"
 ENV PIP_INDEX_URL=${PIP_INDEX_URL}
 COPY --from=recipe ./dependencies-py3.* "/tmp/"
 RUN python3 -m pip install -r /tmp/dependencies-py3.txt
@@ -61,16 +61,19 @@ CMD ["dt-launcher-vnc"]
 # <== Do not change the code above this line
 # <==================================================
 
-# Copy stuff for the user directory
-COPY --from=recipe assets/vnc/image/root/Desktop/. /root/Desktop/
-COPY --from=recipe assets/vnc/image/root/Documents/. /root/Documents/
-COPY --from=recipe assets/vnc/image/root/icons/. /root/.icons/
+# copy stuff for the user directory
+COPY --from=recipe assets/vnc/root/Desktop/. /root/Desktop/
+COPY --from=recipe assets/vnc/root/Documents/. /root/Documents/
+COPY --from=recipe assets/vnc/root/icons/. /root/.icons/
 
-# Copy custom binaries
-COPY --from=recipe assets/vnc/image/usr/bin/. /usr/bin/
+# copy custom binaries
+COPY --from=recipe assets/vnc/usr/bin/. /usr/bin/
 
-# Copy rviz configuration
-COPY --from=recipe assets/vnc/image/opt/ros/noetic/share/rviz/. /opt/ros/noetic/share/rviz/
+# copy RVIZ configuration
+COPY --from=recipe assets/vnc/opt/ros/noetic/share/rviz/. /opt/ros/noetic/share/rviz/
 
-# Remove extra Desktop icons
+# copy data_collection script
+COPY --from=meat packages /root/Documents/packages
+
+# remove icons that are not needed from the desktop
 RUN rm /root/Desktop/intrinsic_calibration.desktop

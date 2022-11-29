@@ -8,3 +8,6 @@ tqdm
 git+https://github.com/Velythyl/dataclasses-spoof
 git+https://github.com/duckietown/lib-dt-mooc-2021
 git+https://github.com/duckietown/gym-duckietown.git@daffy-seg-fix
+
+# needed by YOLOv5
+gitpython
