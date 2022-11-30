@@ -1,3 +1,5 @@
 # LIST YOUR APT PACKAGES HERE
 python3-tk
+tk-dev 
+libagg-dev
 
