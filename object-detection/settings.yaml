@@ -3,5 +3,3 @@
 agent_base: "duckietown_ml"
 ws_dir: "solution" # directory that contains the code the user needs to see
 ros: true
-rsync_exclude:
-  - "solution/duckietown_dataset"
