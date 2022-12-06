@@ -72,8 +72,5 @@ COPY --from=recipe assets/vnc/usr/bin/. /usr/bin/
 # copy RVIZ configuration
 COPY --from=recipe assets/vnc/opt/ros/noetic/share/rviz/. /opt/ros/noetic/share/rviz/
 
-# copy data_collection script
-COPY --from=meat packages /root/Documents/packages
-
 # remove icons that are not needed from the desktop
 RUN rm /root/Desktop/intrinsic_calibration.desktop

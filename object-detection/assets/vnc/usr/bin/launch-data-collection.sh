@@ -1,5 +1,3 @@
 #!/bin/bash
 
-PYTHONPATH=/root/Documents/packages:${PYTHONPATH}
-
-python3 /root/Documents/packages/utils/data_collection.py
+python3 /code/catkin_ws/src/object-detection/packages/utils/data_collection.py

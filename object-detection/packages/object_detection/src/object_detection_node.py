@@ -3,14 +3,13 @@
 import cv2
 import numpy as np
 import rospy
-import rospkg
 
-from duckietown.dtros import DTROS, NodeType, TopicType, DTParam, ParamType
-from sensor_msgs.msg import CompressedImage, Image
+from duckietown.dtros import DTROS, NodeType, TopicType
 from duckietown_msgs.msg import Twist2DStamped, EpisodeStart
-from object_detection.model import Wrapper
 from cv_bridge import CvBridge
 from sensor_msgs.msg import CompressedImage, Image
+
+from nn_model.model import Wrapper
 
 from solution.integration_activity import \
     NUMBER_FRAMES_SKIPPED, \
