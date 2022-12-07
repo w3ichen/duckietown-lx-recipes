@@ -26,7 +26,7 @@ class Storage:
     def __init__(self, token: str, cache_dir: str = None):
         self._client = DataClient(token)
         self._space = self._client.storage("user")
-        self._folder = 'courses/mooc/2021/data/nn_models'
+        self._folder = 'courses/mooc/objdet/data/nn_models'
 
         self.cache_directory = cache_dir or "/data"
         if os.path.exists("/code/solution/src"):
@@ -60,8 +60,22 @@ class Storage:
                           dynamic_axes={'input': {0: 'batch_size'},  # variable lenght axes
                                         'output': {0: 'batch_size'}})
 
-    def upload_yolov5(self, destination_name, pt_model, pt_weights_path):
-        # might want to use template pattern if we want to make a bunch of these
+    def upload_yolov5_only(
+            self,
+            destination_name,
+            pt_model,
+            pt_weights_path,
+    ):
+        # Get model
+        device = select_device('cpu')
+        model = pt_model.to(device).float()  # load to FP32
+        model.eval()
+
+        # UPLOAD .pt
+        self._upload(destination_name, [pt_weights_path])
+
+    def upload_yolov5(self, destination_name, pt_model,
+                      pt_weights_path):  # might want to use template pattern if we want to make a bunch of these
         wts_path = pt_weights_path + '.wts'
 
         # STEP 1: CONVERT TO WTS
