@@ -43,10 +43,10 @@ class Wrapper:
 
         storage = Storage(dt_token, cache_dir=cache_path)
 
-        file_already_existed = storage.is_hash_found_locally(model_name, cache_path)
+        # file_already_existed = storage.is_hash_found_locally(model_name, cache_path)
 
         storage.download_files(model_name, cache_path)
-        weight_file_path = f"{storage.cache_directory}/{model_name}"
+        weight_file_path = os.path.join(cache_path, model_name)
 
         # TODO: during MOOC2021, we needed to convert a .pt model to .wts and then tensorRT on the JN 2GB
         if False:
