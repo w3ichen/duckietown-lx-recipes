@@ -7,6 +7,9 @@ tqdm
 # this is not HEAD, due to some issues with unashable (see DTSW-2042)
 git+https://github.com/duckietown/gym-duckietown.git@daffy-mooc2022
 
+# library shared between the agent and colab
+git+https://github.com/duckietown/lib-dt-mooc@mooc2022
+
 # needed by YOLOv5
 gitpython
 
