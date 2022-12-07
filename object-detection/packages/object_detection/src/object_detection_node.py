@@ -7,9 +7,12 @@ import rospy
 from duckietown.dtros import DTROS, NodeType, TopicType
 from duckietown_msgs.msg import Twist2DStamped, EpisodeStart
 from cv_bridge import CvBridge
-from sensor_msgs.msg import CompressedImage, Image
+from sensor_msgs.msg import CompressedImage
 
+from nn_model.constants import IMAGE_SIZE
 from nn_model.model import Wrapper
+
+from dt_device_utils import DeviceHardwareBrand, get_device_hardware_brand
 
 from solution.integration_activity import \
     NUMBER_FRAMES_SKIPPED, \
@@ -32,14 +35,25 @@ class ObjectDetectionNode(DTROS):
         # Construct publishers
         car_cmd_topic = f"/{self.veh}/joy_mapper_node/car_cmd"
         self.pub_car_cmd = rospy.Publisher(
-            car_cmd_topic, Twist2DStamped, queue_size=1, dt_topic_type=TopicType.CONTROL
+            car_cmd_topic,
+            Twist2DStamped,
+            queue_size=1,
+            dt_topic_type=TopicType.CONTROL
         )
 
         episode_start_topic = f"/{self.veh}/episode_start"
-        rospy.Subscriber(episode_start_topic, EpisodeStart, self.cb_episode_start, queue_size=1)
+        rospy.Subscriber(
+            episode_start_topic,
+            EpisodeStart,
+            self.cb_episode_start,
+            queue_size=1
+        )
 
         self.pub_detections_image = rospy.Publisher(
-            "~object_detections_img", Image, queue_size=1, dt_topic_type=TopicType.DEBUG
+            "~image/compressed",
+            CompressedImage,
+            queue_size=1,
+            dt_topic_type=TopicType.DEBUG
         )
 
         # Construct subscribers
@@ -53,9 +67,7 @@ class ObjectDetectionNode(DTROS):
 
         self.bridge = CvBridge()
 
-        model_file = rospy.get_param("~model_file", ".")
         self.v = rospy.get_param("~speed", 0.4)
-        self.veh = rospy.get_namespace().strip("/")
         aido_eval = rospy.get_param("~AIDO_eval", False)
         self.log(f"AIDO EVAL VAR: {aido_eval}")
         self.log("Starting model loading!")
@@ -89,18 +101,16 @@ class ObjectDetectionNode(DTROS):
             self.logerr("Could not decode image: %s" % e)
             return
 
-        old_img = image
-        from dt_device_utils import DeviceHardwareBrand, get_device_hardware_brand
+        # TODO: this is wrong, images are always coming out of CVbridge as BGR
+        rgb = image
 
-        if get_device_hardware_brand() != DeviceHardwareBrand.JETSON_NANO:  # if in sim
-            if self._debug:
-                print("Assumed an image was bgr and flipped it to rgb")
-            old_img = image
-            image = image[..., ::-1].copy()  # image is bgr, flip it to rgb
+        if get_device_hardware_brand() != DeviceHardwareBrand.JETSON_NANO:
+            # in simulation, image is bgr, flip it to rgb
+            bgr = image
+            rgb = bgr[..., ::-1]
 
-        old_img = cv2.resize(old_img, (416, 416))
-        image = cv2.resize(image, (416, 416))
-        bboxes, classes, scores = self.model_wrapper.predict(image)
+        rgb = cv2.resize(rgb, (IMAGE_SIZE, IMAGE_SIZE))
+        bboxes, classes, scores = self.model_wrapper.predict(rgb)
 
         detection = self.det2bool(bboxes, classes, scores)
 
@@ -120,17 +130,20 @@ class ObjectDetectionNode(DTROS):
                 pt2 = np.array([int(box[2]), int(box[3])])
                 pt1 = tuple(pt1)
                 pt2 = tuple(pt2)
-                color = colors[clas.item()]
+                color = tuple(reversed(colors[clas.item()]))
                 name = names[clas.item()]
-                image = cv2.rectangle(image, pt1, pt2, color, 2)
-                text_location = (pt1[0], min(416, pt1[1] + 20))
-                image = cv2.putText(image, name, text_location, font, 1, color, thickness=3)
+                # draw bounding box
+                rgb = cv2.rectangle(rgb, pt1, pt2, color, 2)
+                # label location
+                text_location = (pt1[0], min(pt2[1] + 30, IMAGE_SIZE))
+                # draw label underneath the bounding box
+                rgb = cv2.putText(rgb, name, text_location, font, 1, color, thickness=2)
 
-            obj_det_img = self.bridge.cv2_to_imgmsg(old_img, encoding="bgr8")
+            bgr = rgb[..., ::-1]
+            obj_det_img = self.bridge.cv2_to_compressed_imgmsg(bgr)
             self.pub_detections_image.publish(obj_det_img)
 
     def det2bool(self, bboxes, classes, scores):
-
         box_ids = np.array(list(map(filter_by_bboxes, bboxes))).nonzero()[0]
         cla_ids = np.array(list(map(filter_by_classes, classes))).nonzero()[0]
         sco_ids = np.array(list(map(filter_by_scores, scores))).nonzero()[0]
