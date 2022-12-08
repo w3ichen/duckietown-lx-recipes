@@ -96,18 +96,12 @@ class ObjectDetectionNode(DTROS):
 
         # Decode from compressed image with OpenCV
         try:
-            image = self.bridge.compressed_imgmsg_to_cv2(image_msg)
+            bgr = self.bridge.compressed_imgmsg_to_cv2(image_msg)
         except ValueError as e:
             self.logerr("Could not decode image: %s" % e)
             return
 
-        # TODO: this is wrong, images are always coming out of CVbridge as BGR
-        rgb = image
-
-        if get_device_hardware_brand() != DeviceHardwareBrand.JETSON_NANO:
-            # in simulation, image is bgr, flip it to rgb
-            bgr = image
-            rgb = bgr[..., ::-1]
+        rgb = bgr[..., ::-1]
 
         rgb = cv2.resize(rgb, (IMAGE_SIZE, IMAGE_SIZE))
         bboxes, classes, scores = self.model_wrapper.predict(rgb)
@@ -130,8 +124,8 @@ class ObjectDetectionNode(DTROS):
                 pt2 = np.array([int(box[2]), int(box[3])])
                 pt1 = tuple(pt1)
                 pt2 = tuple(pt2)
-                color = tuple(reversed(colors[clas.item()]))
-                name = names[clas.item()]
+                color = tuple(reversed(colors[clas]))
+                name = names[clas]
                 # draw bounding box
                 rgb = cv2.rectangle(rgb, pt1, pt2, color, 2)
                 # label location
