@@ -58,6 +58,9 @@ ENV PIP_INDEX_URL=${PIP_INDEX_URL}
 COPY --from=recipe ./dependencies-py3.* "${REPO_PATH}/"
 RUN python3 -m pip install -r ${REPO_PATH}/dependencies-py3.txt
 
+# download YOLOv5 model (weights will be downloaded from DCSS)
+RUN git clone -b v7.0 https://github.com/ultralytics/yolov5 "/yolov5"
+
 # copy the assets (recipe)
 COPY --from=recipe ./assets "${REPO_PATH}/assets"
 
