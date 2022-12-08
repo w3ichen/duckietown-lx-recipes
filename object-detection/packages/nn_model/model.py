@@ -1,5 +1,7 @@
 import ctypes
 import os
+import tempfile
+from typing import Tuple
 
 from solution.integration_activity import MODEL_NAME, DT_TOKEN
 
@@ -7,6 +9,9 @@ from dt_device_utils import DeviceHardwareBrand, get_device_hardware_brand
 from dt_mooc.cloud import Storage
 
 from .constants import ASSETS_DIR, IMAGE_SIZE
+
+
+USE_FP16 = True
 
 
 def run(input, exception_on_failure=False):
@@ -102,18 +107,21 @@ class AMD64Model:
 
         import torch
 
-        torch.hub.set_dir("/code/solution/nn_models")
-        self.model = torch.hub.load("ultralytics/yolov5", "custom", path=f"{weight_file_path}.pt")
-        try:
-            if torch.cuda.is_available():
-                self.model = self.model.cuda()
-            else:
-                self.model = self.model.cpu()
-        except Exception:
-            self.model = self.model.cpu()
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            torch.hub.set_dir(tmpdirname)
+            model = torch.hub.load("ultralytics/yolov5", "custom", path=f"{weight_file_path}.pt")
 
-    def infer(self, image):
-        # TODO size should be read from one place
+        if USE_FP16:
+            model = model.half()
+
+        if torch.cuda.is_available():
+            self.model = model.cuda()
+        else:
+            self.model = model.cpu()
+
+        del model
+
+    def infer(self, image) -> Tuple[list, list, list]:
         det = self.model(image, size=IMAGE_SIZE)
 
         xyxy = det.xyxy[0]  # grabs det of first image (aka the only image we sent to the net)
@@ -123,7 +131,7 @@ class AMD64Model:
             clas = xyxy[:, -1]
             xyxy = xyxy[:, :-2]
 
-            return xyxy, clas, conf
+            return xyxy.tolist(), clas.tolist(), conf.tolist()
         return [], [], []
 
 
