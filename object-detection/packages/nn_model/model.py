@@ -1,17 +1,18 @@
-import ctypes
 import os
-import tempfile
 from typing import Tuple
 
+import numpy as np
+
+import torch
+
+from dt_data_api import DataClient
 from solution.integration_activity import MODEL_NAME, DT_TOKEN
 
 from dt_device_utils import DeviceHardwareBrand, get_device_hardware_brand
-from dt_mooc.cloud import Storage
 
-from .constants import ASSETS_DIR, IMAGE_SIZE
+from .constants import IMAGE_SIZE, ASSETS_DIR
 
-
-USE_FP16 = True
+JETSON_FP16 = True
 
 
 def run(input, exception_on_failure=False):
@@ -36,82 +37,85 @@ class Wrapper:
         model_name = MODEL_NAME()
 
         models_path = os.path.join(ASSETS_DIR, "nn_models")
-        weight_file_path = os.path.join(models_path, model_name)
+        dcss_models_path = "courses/mooc/objdet/data/nn_models/"
+
+        dcss_weight_file_path = os.path.join(dcss_models_path, f"{model_name}.pt")
+        weight_file_path = os.path.join(models_path, f"{model_name}.pt")
 
         if aido_eval:
             assert os.path.exists(weight_file_path)
-            self.model = AMD64Model(weight_file_path)
-            return
+        else:
+            dt_token = DT_TOKEN()
 
-        dt_token = DT_TOKEN()
+            if get_device_hardware_brand() == DeviceHardwareBrand.JETSON_NANO:
+                # when running on the robot, we store models in the persistent `data` directory
+                models_path = "/data/nn_models"
+                weight_file_path = os.path.join(models_path, f"{model_name}.pt")
 
-        if get_device_hardware_brand() == DeviceHardwareBrand.JETSON_NANO:
-            # when running on the robot, we store models in the persistent `data` directory
-            models_path = "/data/nn_models"
-            weight_file_path = os.path.join(models_path, model_name)
+            # make models destination dir if it does not exist
+            if not os.path.exists(models_path):
+                os.makedirs(models_path)
 
-        # make models destination dir if it does not exist
-        if not os.path.exists(models_path):
-            os.makedirs(models_path)
+            # open a pointer to the DCSS storage unit
+            client = DataClient(dt_token)
+            storage = client.storage("user")
 
-        # open a pointer to the DCSS storage unit
-        storage = Storage(dt_token, cache_dir=models_path)
+            # make sure the model exists
+            metadata = None
+            try:
+                metadata = storage.head(dcss_weight_file_path)
+            except FileNotFoundError:
+                print(f"FATAL: Model '{model_name}' not found. It was expected at '{dcss_weight_file_path}'.")
+                exit(1)
 
-        # do not download if already up-to-date
-        model_exists = storage.is_hash_found_locally(model_name, models_path)
-        if not model_exists:
-            storage.download_files(model_name, models_path)
+            # extract current ETag
+            remote_etag = eval(metadata["ETag"])
+            print(f"Remote ETag for model '{model_name}': {remote_etag}")
 
-        # TODO: during MOOC2021, we needed to convert a .pt model to .wts and then tensorRT on the JN 2GB
-        # if False:
-        #     if get_device_hardware_brand() == DeviceHardwareBrand.JETSON_NANO and not file_already_existed:
-        #         print("\n\n\n\nCONVERTING TO ONNX. THIS WILL TAKE A LONG TIME...\n\n\n")
-        #         # https://github.com/duckietown/tensorrtx/tree/dt-yolov5/yolov5
-        #         run("git clone https://github.com/duckietown/tensorrtx.git -b dt-obj-det")
-        #         run(f"cp {weight_file_path}.wts ./tensorrtx/yolov5.wts")
-        #         run(
-        #             f"cd tensorrtx && ls && chmod 777 ./do_convert.sh && ./do_convert.sh",
-        #             exception_on_failure=True,
-        #         )
-        #         run(f"mv tensorrtx/build/yolov5.engine {weight_file_path}.engine")
-        #         run(f"mv tensorrtx/build/libmyplugins.so {weight_file_path}.so")
-        #         run("rm -rf tensorrtx")
-        #         print(
-        #             "\n\n\n\n...DONE CONVERTING! NEXT TIME YOU RUN USING THE SAME MODEL, WE WON'T NEED TO DO THIS!\n\n\n"
-        #         )
-        #
-        #     if get_device_hardware_brand() == DeviceHardwareBrand.JETSON_NANO:
-        #         self.model = TRTModel(weight_file_path)
-        #
-        #     else:
-        #         self.model = AMD64Model(weight_file_path)
+            # read local etag
+            local_etag = None
+            etag_file_path = f"{weight_file_path}.etag"
+            if os.path.exists(etag_file_path):
+                with open(etag_file_path, "rt") as fin:
+                    local_etag = fin.read().strip()
+                print(f"Found local ETag for model '{model_name}': {local_etag}")
+            else:
+                print(f"No local model found with name '{model_name}'")
 
-        # TODO: during MOOC2022, we want to try and use the .pt model directly on the JN 4GB
-        self.model = AMD64Model(weight_file_path)
+            # do not download if already up-to-date
+            print(f"DEBUG: Comparing [{local_etag}] <> [{remote_etag}]")
+            if local_etag != remote_etag:
+                if local_etag:
+                    print(f"Found a different model on DCSS.")
+                print(f"Downloading model '{model_name}' from DCSS...")
+                # download model
+                download = storage.download(dcss_weight_file_path, weight_file_path, force=True)
+                download.join()
+                assert os.path.exists(weight_file_path)
+                # write ETag to file
+                with open(etag_file_path, "wt") as fout:
+                    fout.write(remote_etag)
+                print(f"Model with ETag '{remote_etag}' downloaded!")
+            else:
+                print(f"Local model is up-to-date!")
 
-    def predict(self, image):
+        # load pytorch model
+        self.model = Model(weight_file_path)
+
+    def predict(self, image: np.ndarray) -> Tuple[list, list, list]:
         return self.model.infer(image)
 
 
 class Model:
-    def __init__(self):
-        pass
-
-    def infer(self, image):
-        raise NotImplementedError()
-
-
-class AMD64Model:
-    def __init__(self, weight_file_path):
+    def __init__(self, weight_file_path: str):
         super().__init__()
 
-        import torch
+        model = torch.hub.load("/yolov5", "custom", path=weight_file_path, source="local")
+        model.eval()
 
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            torch.hub.set_dir(tmpdirname)
-            model = torch.hub.load("ultralytics/yolov5", "custom", path=f"{weight_file_path}.pt")
+        use_fp16: bool = JETSON_FP16 and get_device_hardware_brand() == DeviceHardwareBrand.JETSON_NANO
 
-        if USE_FP16:
+        if use_fp16:
             model = model.half()
 
         if torch.cuda.is_available():
@@ -121,7 +125,7 @@ class AMD64Model:
 
         del model
 
-    def infer(self, image) -> Tuple[list, list, list]:
+    def infer(self, image: np.ndarray) -> Tuple[list, list, list]:
         det = self.model(image, size=IMAGE_SIZE)
 
         xyxy = det.xyxy[0]  # grabs det of first image (aka the only image we sent to the net)
@@ -133,24 +137,3 @@ class AMD64Model:
 
             return xyxy.tolist(), clas.tolist(), conf.tolist()
         return [], [], []
-
-
-# # TODO: we might be able to get rid of this completely if the model works on the JN 4GB without tensorRT
-# class TRTModel(Model):
-#     def __init__(self, weight_file_path):
-#         super().__init__()
-#         ctypes.CDLL(weight_file_path + ".so")
-#         from object_detection.tensorrt_model import YoLov5TRT
-#
-#         self.model = YoLov5TRT(weight_file_path + ".engine")
-#
-#     def infer(self, image):
-#         # todo ensure this is in boxes, classes, scores format
-#         results = self.model.infer_for_robot([image])
-#         boxes = results[0][0]
-#         confs = results[0][1]
-#         classes = results[0][2]
-#
-#         if classes.shape[0] > 0:
-#             return boxes, classes, confs
-#         return [], [], []

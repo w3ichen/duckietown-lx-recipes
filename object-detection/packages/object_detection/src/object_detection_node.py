@@ -12,8 +12,6 @@ from sensor_msgs.msg import CompressedImage
 from nn_model.constants import IMAGE_SIZE
 from nn_model.model import Wrapper
 
-from dt_device_utils import DeviceHardwareBrand, get_device_hardware_brand
-
 from solution.integration_activity import \
     NUMBER_FRAMES_SKIPPED, \
     filter_by_classes, \
