@@ -43,6 +43,19 @@ ENV PIP_INDEX_URL=${PIP_INDEX_URL}
 COPY --from=recipe ./dependencies-py3.* "/tmp/"
 RUN python3 -m pip install -r /tmp/dependencies-py3.txt
 
+# copy the source code (from dt-core)
+# NOTE: this is very wrong! we should reuse the libraries we released for ente instead.
+FROM ${DOCKER_REGISTRY}/duckietown/dt-core:daffy as core
+FROM base
+COPY --from=core "${CATKIN_WS_DIR}/src/dt-core" "${CATKIN_WS_DIR}/src/${EXERCISE_NAME}/packages/dt-core"
+RUN dt-apt-install "${CATKIN_WS_DIR}/src/${EXERCISE_NAME}/packages/dt-core/dependencies-apt.txt"
+RUN dt-pip3-install "${CATKIN_WS_DIR}/src/${EXERCISE_NAME}/packages/dt-core/dependencies-py3.txt"
+
+# build packages
+RUN . /opt/ros/${ROS_DISTRO}/setup.sh && \
+  catkin build \
+    --workspace ${CATKIN_WS_DIR}/
+
 # store module metadata
 LABEL org.duckietown.label.module.type="exercise-vscode" \
     org.duckietown.label.module.name="${EXERCISE_NAME}" \
