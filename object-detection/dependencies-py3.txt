@@ -2,9 +2,6 @@
 aido-protocols-daffy
 duckietown-world-daffy
 
-# TODO: moved to vscode Dockerfile
-#tqdm
-
 # this is not HEAD, due to some issues with unashable objects (see DTSW-2042)
 git+https://github.com/duckietown/gym-duckietown.git@daffy-mooc2022
 
@@ -18,3 +15,6 @@ pyglet==1.5.15
 
 # used to interface with the DCSS
 dt-data-api-daffy>=0.1.8
+
+# numpy (pinned version is needed due to incompatibilities with duckietown-world)
+numpy==1.20.0
