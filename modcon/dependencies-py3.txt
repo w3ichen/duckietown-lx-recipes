@@ -1,3 +1,6 @@
 # LIST YOUR PYTHON3 PACKAGES HERE
 
 aido-protocols-daffy
+duckietown-world-daffy
+ipywidgets==7.*
+jupyterlab
