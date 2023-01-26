@@ -1,7 +1,5 @@
 import numpy as np
 
-__all__ = ['integrate_kinematics']
-
 def get_next_pose(icc_pos, d, cur_theta, theta_displacement):
     """
     Compute the new next position in global frame
