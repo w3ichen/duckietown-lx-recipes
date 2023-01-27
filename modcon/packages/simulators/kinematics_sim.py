@@ -89,7 +89,7 @@ def drive(cur_pos, cur_angle, velocity, angular_velocity, wheel_dist, wheel_radi
     
     return next_position, next_orientation
 
-def integrate_kinematics(initial_pose:list, initial_vel:list, y_ref:float) -> tuple:
+def integrate_kinematics(initial_pose:list, initial_vel:list, y_ref:float, controller) -> tuple:
     """
     Integrate kinematics starting from initial pose and vel and targeting y_ref
     Input:
@@ -134,7 +134,7 @@ def integrate_kinematics(initial_pose:list, initial_vel:list, y_ref:float) -> tu
     for i in range(num_steps):
         y_hat = cur_pos[1]
 
-        v_0, omega, e, e_int = PIDController(v_0, y_ref, y_hat, prev_e_y, prev_int_y, delta_t=dt)
+        v_0, omega, e, e_int = controller(v_0, y_ref, y_hat, prev_e_y, prev_int_y, delta_t=dt)
         prev_e_y = e
         prev_int_y = e_int
 
