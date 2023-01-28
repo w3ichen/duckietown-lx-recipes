@@ -14,7 +14,6 @@ NOMINAL_WHEEL_RADIUS = 0.0318
 NOMINAL_BASELINE = 0.1
 NOMINAL_ENCODER_TICKS = 135
 
-
 def get_wheel_speed(omega, v_a, baseline=NOMINAL_BASELINE, radius=NOMINAL_WHEEL_RADIUS):
 
     # Using the inverse kinematics we obtain the angular velocities of the two wheels
@@ -72,34 +71,34 @@ def integrate_dynamics(
     v = initial_vel[0]
     omega = initial_vel[1]
 
-    q0 = geo.SE2_from_xytheta(initial_pose)
-    v0 = geo.se2_from_linear_angular(
+    last_pose = geo.SE2_from_xytheta(initial_pose)
+    last_vel = geo.se2_from_linear_angular(
         np.array([v * np.cos(initial_pose[2]), v * np.sin(initial_pose[2])]), omega
-    )
+    ) # Probably there's a function doing this
 
-    c0 = q0, v0
-
+    # Define time variables
     initial_time = 0.0
     timestep = 0.1
     t_max = 60
     n = int(t_max / timestep)
 
+    # Initialize dynamics
     nominal_duckie = get_DB18_nominal(delay=0)
-    state = nominal_duckie.initialize(c0=c0, t0=initial_time)
-
-    ssb: SampledSequenceBuilder[PlatformDynamics] = SampledSequenceBuilder[
-        PlatformDynamics
-    ]()
-    ssb.add(initial_time, state)
+    state = nominal_duckie.initialize(c0=(last_pose, last_vel), t0=initial_time)
 
     # Set integrator state
     e_int = 0
-    e = initial_pose[1] - y_ref
+    e = 0
+    prev_e_y = 0.0
+    prev_int_y = 0.0
 
     # Set the commanded parameters
     v_0 = 0.22
-    prev_e_y = 0.0
-    prev_int_y = 0.0
+
+    # Define lists to output
+    pose_list = [last_pose]
+    vel_list = [last_vel]
+    e_list = [e]
 
     # Initialize odometry variables
     if odometry_function is not None:
@@ -108,9 +107,6 @@ def integrate_dynamics(
         ticks_left = ticks_right = 0
         
     for i in range(n):
-        # Get y_hat from pose
-        last_pose, last_vel = state.TSE2_from_state()
-
         if odometry_function is None:
             y_hat = last_pose[1][2]
 
@@ -150,8 +146,28 @@ def integrate_dynamics(
 
         state = state.integrate(timestep, commands)
 
+        # Update output lists
+        last_pose, last_vel = state.TSE2_from_state()
+        pose_list.append(last_pose)
+        vel_list.append(last_vel)
+        e_list.append(e)
+
         t = initial_time + (i + 1) * timestep
 
-        ssb.add(t, state)
+    xs = []
+    ys = []
+    angles = []
+    omegas = []
+    
+    for pose_SE2 in pose_list: 
+        x,y,theta = geo.xytheta_from_SE2(pose_SE2)
+        xs.append(x)
+        ys.append(y)
+        angles.append(np.rad2deg(theta))
 
-    return ssb.as_sequence()
+    for v_se2 in vel_list:
+        v, omega = geo.linear_angular_from_se2(v_se2)
+        omegas.append(omega)
+
+    return xs, ys, omegas, e_list, angles
+    
