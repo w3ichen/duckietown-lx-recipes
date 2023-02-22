@@ -58,7 +58,8 @@ class EncoderPoseNode(DTROS):
         self.prev_e = 0.0
         #   - previous tracking error integral, starts at 0
         self.prev_int = 0.0
-        self.time = 0.0
+        self.time_now: float = 0.0
+        self.time_last_step: float = 0.0
 
         # fixed robot linear velocity - starts at zero so the activities start on command
         self.v_0 = 0.0
@@ -154,7 +155,8 @@ class EncoderPoseNode(DTROS):
         # Initializing the PID controller parameters
         self.prev_e = 0.0  # previous tracking error, starts at 0
         self.prev_int = 0.0  # previous tracking error integral, starts at 0
-        self.time = 0.0
+        self.time_now: float = 0.0
+        self.time_last_step: float = 0.0
 
         # fixed robot linear velocity - starts at zero so the activities start on command
         self.v_0 = 0.0
@@ -248,6 +250,9 @@ class EncoderPoseNode(DTROS):
         )
         self.delta_phi_left += delta_phi_left
 
+        # update time
+        self.time_now = max(self.time_now, encoder_msg.header.stamp.to_sec())
+
         # compute the new pose
         self.LEFT_RECEIVED = True
         self.posePublisher()
@@ -272,6 +277,9 @@ class EncoderPoseNode(DTROS):
             encoder_msg.data, self.right_tick_prev, encoder_msg.resolution
         )
         self.delta_phi_right += delta_phi_right
+
+        # update time
+        self.time_now = max(self.time_now, encoder_msg.header.stamp.to_sec())
 
         # compute the new pose
         self.RIGHT_RECEIVED = True
@@ -350,9 +358,8 @@ class EncoderPoseNode(DTROS):
         Calculate theta and perform the control actions given by the PID
         """
 
-        time_now = time.time()
-        delta_time = time_now - self.time
-        self.time = time_now
+        delta_time = self.time_now - self.time_last_step
+        self.time_last_step = self.time_now
         v, omega = 0, 0
 
         if self.duckiebot_is_moving:
@@ -381,7 +388,7 @@ class EncoderPoseNode(DTROS):
         """
 
         car_control_msg = Twist2DStamped()
-        car_control_msg.header.stamp = rospy.Time.now()
+        car_control_msg.header.stamp = rospy.Time.from_sec(self.time_now)
 
         car_control_msg.v = v
         car_control_msg.omega = omega
