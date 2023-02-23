@@ -92,6 +92,7 @@ def drive(cur_pos, cur_angle, velocity, angular_velocity, wheel_dist, wheel_radi
 def integrate_kinematics(initial_pose:list, initial_vel:list, y_ref:float, controller) -> tuple:
     """
     Integrate kinematics starting from initial pose and vel and targeting y_ref
+    for 60 seconds, with a timestep of 0.1s
     Input:
         - inital_pose: 3 elements list containing the initial position and orientation 
                         [x_0,y_0,theta_0], theta_0 in degrees
@@ -107,10 +108,14 @@ def integrate_kinematics(initial_pose:list, initial_vel:list, y_ref:float, contr
     """
     cur_pos = np.array(initial_pose[0:2])   # initial position of the robot
     cur_angle = initial_pose[2]             # initial yaw angle of the robot
-    dt = 0.1                                # time step in seconds
-    num_steps = 600                         # max number of time steps
     wheel_dist = 0.1                        # distance between left and right wheels in meters, i.e., 2L
     wheel_radius = 0.0318                   # radius of the wheels in meters, i.e., R
+
+    # Define time variables
+    initial_time = 0.0
+    timestep = 0.1                                # time step in seconds
+    t_max = 60
+    n = int(t_max / timestep)
 
     v_0 = initial_vel[0] # assume velocity is constant in m/s
 
@@ -131,15 +136,15 @@ def integrate_kinematics(initial_pose:list, initial_vel:list, y_ref:float, contr
     prev_e_y = 0.0
     prev_int_y = 0.0
 
-    for i in range(num_steps):
+    for i in range(n):
         y_hat = cur_pos[1]
 
-        v_0, omega, e, e_int = controller(v_0, y_ref, y_hat, prev_e_y, prev_int_y, delta_t=dt)
+        v_0, omega, e, e_int = controller(v_0, y_ref, y_hat, prev_e_y, prev_int_y, delta_t=timestep)
         prev_e_y = e
         prev_int_y = e_int
 
         # simulate driving
-        cur_pos, cur_angle = drive(cur_pos, cur_angle, v_0, omega, wheel_dist, wheel_radius, dt) 
+        cur_pos, cur_angle = drive(cur_pos, cur_angle, v_0, omega, wheel_dist, wheel_radius, timestep) 
         
         # store trajectory, angular velocity, and error so we can plot them
         xs.append(cur_pos[0])
