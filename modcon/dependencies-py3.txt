@@ -2,4 +2,4 @@
 
 aido-protocols-daffy
 duckietown-world-daffy
-ipywidgets==7.*
+ipywidgets
