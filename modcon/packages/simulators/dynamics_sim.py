@@ -78,7 +78,7 @@ def integrate_dynamics(
 
     # Define time variables
     initial_time = 0.0
-    timestep = 0.1
+    timestep = 0.1                                # time step in seconds
     t_max = 60
     n = int(t_max / timestep)
 
