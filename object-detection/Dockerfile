@@ -99,3 +99,6 @@ LABEL org.duckietown.label.module.type="exercise" \
     org.duckietown.label.maintainer="${MAINTAINER}"
 # <== Do not change the code above this line
 # <==================================================
+
+# disable YOLOv5 auto-update
+ENV YOLOv5_AUTOINSTALL=false
