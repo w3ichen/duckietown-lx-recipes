@@ -20,3 +20,6 @@ dt-data-api-daffy>=0.1.8
 numpy==1.20.0
 # pandas (pinned version is to avoid this: https://stackoverflowteams.com/c/duckietown/questions/2673)
 pandas==1.4.4
+
+# ipython (not needed directly but we need to pin the latest version compatible with Python3.7)
+ipython==7.34.0
