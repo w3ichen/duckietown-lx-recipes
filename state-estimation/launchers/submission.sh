@@ -13,7 +13,7 @@ dt-exec-BG roscore
 dt-exec-BG roslaunch --wait car_interface all.launch veh:="${VEHICLE_NAME}"
 dt-exec-BG roslaunch --wait histogram_lane_filter lane_following.launch
 
-sleep 5
+sleep 30
 dt-exec-BG roslaunch --wait duckietown_demos set_state.launch veh:="${VEHICLE_NAME}" state:="LANE_FOLLOWING"
 
 
