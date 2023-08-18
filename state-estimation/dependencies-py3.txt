@@ -2,3 +2,4 @@
 
 aido-protocols-daffy
 duckietown-utils-daffy
+numpy==1.23.5
