@@ -4,3 +4,4 @@ aido-protocols-daffy
 duckietown-utils-daffy
 
 ipywidgets
+numpy<=1.21.0
