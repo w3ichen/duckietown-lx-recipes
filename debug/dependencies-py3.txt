@@ -3,3 +3,19 @@
 aido-protocols-daffy
 duckietown-utils-daffy
 numpy==1.23.5
+# LIST YOUR DUCKIETOWN PYTHON3 PACKAGES HERE
+# NOTE: only place Duckietown libraries here; these libraries will be resolved to the latest available version and pinned; pin a specific version only if necessary
+
+# ATags3 Python bindings
+dt_apriltags>=3.1.7
+
+# LIST YOUR PYTHON3 PACKAGES HERE
+# NOTE: only place non-Duckietown libraries here; pin versions only if necessary
+
+ruamel.yaml
+
+comptests-z6
+
+procgraph-z6
+ros_node_utils>=2.0.0
+compmake-z6>=6.0.9

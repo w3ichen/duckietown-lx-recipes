@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.4
 # parameters
-ARG EXERCISE_NAME="state-estimation"
-ARG DESCRIPTION="VSCode - State Estimation"
+ARG EXERCISE_NAME="debug"
+ARG DESCRIPTION="VSCode - Debug"
 ARG MAINTAINER="Andrea F. Daniele (afdaniele@duckietown.com)"
 
 # ==================================================>

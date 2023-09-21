@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.4
 # parameters
-ARG EXERCISE_NAME="state-estimation"
-ARG DESCRIPTION="State Estimation"
+ARG EXERCISE_NAME="debug"
+ARG DESCRIPTION="Debug"
 ARG MAINTAINER="Andrea F. Daniele (afdaniele@duckietown.com)"
 
 # ==================================================>
@@ -9,7 +9,7 @@ ARG MAINTAINER="Andrea F. Daniele (afdaniele@duckietown.com)"
 ARG ARCH
 ARG DISTRO=daffy
 ARG DOCKER_REGISTRY=docker.io
-ARG BASE_IMAGE=challenge-aido_lf-baseline-duckietown
+ARG BASE_IMAGE=challenge-aido_lf-template-ros
 ARG BASE_TAG=${DISTRO}-${ARCH}
 ARG LAUNCHER=default
 

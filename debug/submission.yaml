@@ -1,7 +1,7 @@
 challenge: [lx22-state-estimation]
 
 protocol: aido2_db18_agent-z2
-user-label: "state estimation exercise"
+user-label: "debug exercise"
 user-payload: {}
 description: |
   This is the MOOC State Estimation exercise
