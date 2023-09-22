@@ -2,3 +2,5 @@
 
 aido-protocols-daffy
 ipympl
+
+numpy<=1.21.0

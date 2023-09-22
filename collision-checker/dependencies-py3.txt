@@ -3,3 +3,5 @@
 dt-protocols-daffy
 
 zuper-nodes-z6>=6.2.2
+
+numpy<=1.21.0
