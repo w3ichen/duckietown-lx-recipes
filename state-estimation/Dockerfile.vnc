@@ -79,3 +79,5 @@ RUN rm /root/Desktop/intrinsic_calibration.desktop
 
 # copy test calibration files
 COPY --from=recipe assets/agent/data/config/calibrations/ /data/config/calibrations/
+
+ENV LD_PRELOAD="/lib/aarch64-linux-gnu/libgomp.so.1"
