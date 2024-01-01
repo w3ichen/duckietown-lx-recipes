@@ -81,3 +81,5 @@ RUN pip3 install -U \
     duckietown-world-daffy \
     tqdm \
     ipywidgets
+
+ENV LD_PRELOAD="/lib/aarch64-linux-gnu/libgomp.so.1"
