@@ -98,3 +98,5 @@ LABEL org.duckietown.label.module.type="exercise" \
 # <==================================================
 
 COPY --from=recipe assets/agent/data/config/calibrations/ /data/config/calibrations/
+
+ENV LD_PRELOAD="/lib/aarch64-linux-gnu/libgomp.so.1"
